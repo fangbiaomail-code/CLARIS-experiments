@@ -1,0 +1,21 @@
+ring_size,selected_reports,target_repetitions,warmups,operations,notes
+16,2,30,3,all,small-ring scaling
+16,3,30,3,all,small-ring scaling
+16,5,30,3,all,small-ring scaling
+16,10,30,3,all,small-ring scaling
+16,20,30,3,all,small-ring scaling
+64,2,30,3,all,reference ring size
+64,3,30,3,all,reference ring size
+64,5,30,3,all,reference ring size
+64,10,30,3,all,selected-set scaling
+64,20,30,3,all,selected-set scaling
+256,2,30,3,all,medium-ring scaling
+256,3,30,3,all,medium-ring scaling
+256,5,30,3,all,medium-ring scaling
+256,10,30,3,all,medium-ring scaling
+256,20,30,3,all,medium-ring scaling
+1024,2,30,3,all,large-ring scaling
+1024,3,30,3,all,large-ring scaling
+1024,5,30,3,all,large-ring scaling
+1024,10,30,3,all,large-ring scaling
+1024,20,30,3,all,large-ring scaling
