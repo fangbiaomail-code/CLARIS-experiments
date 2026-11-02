@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+build/
+dist/
+results/processed/*.csv
+results/processed/*.json
+results/processed/*.png
+results/raw/*.tmp
+.DS_Store
