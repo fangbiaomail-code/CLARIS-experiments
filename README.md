@@ -18,7 +18,7 @@ This repository is being initialized as the experiment workspace. The manuscript
 - Anchor-versus-bridge ablation: three measured runs per cell after one warm-up, for N = 64 and 1024 and s = 2, 3, 5.
 - The manuscript explicitly identifies ordinary-pair latency, peak memory, native ARM measurements, matched external compiler implementations, and end-to-end service measurements as not yet measured.
 
-See [docs/experiment-plan.md](docs/experiment-plan.md) for the next experiments and [results/README.md](results/README.md) for data conventions.
+See [CHAPTER_VII_EXPERIMENTS.md](CHAPTER_VII_EXPERIMENTS.md) for the consolidated Chapter VII experiment plan and [results/README.md](results/README.md) for data conventions.
 
 ## Repository layout
 
