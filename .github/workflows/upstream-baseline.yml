@@ -12,7 +12,7 @@ permissions:
 jobs:
   baseline:
     # Measures the pinned Chiang et al. upstream baseline, not CLARIS extensions.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
       - name: Checkout experiment workspace
@@ -29,7 +29,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential gcc-13 g++-13 libssl-dev python3
+          sudo apt-get install -y build-essential libssl-dev python3
           git -C upstream submodule status
 
       - name: Record environment
