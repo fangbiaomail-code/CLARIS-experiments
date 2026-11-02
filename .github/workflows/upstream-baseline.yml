@@ -1,0 +1,79 @@
+name: Baseline VOLEitH ring-signature benchmark
+
+on:
+  push:
+    paths:
+      - ".github/workflows/upstream-baseline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    # Measures the pinned Chiang et al. upstream baseline, not CLARIS extensions.
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout experiment workspace
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned upstream implementation
+        uses: actions/checkout@v4
+        with:
+          repository: jachiang/PQ-Threshold-Ring-Sigs-from-VOLEitH
+          ref: fa540fa152303a23b55a0a63efe20977076a6e15
+          path: upstream
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc-13 g++-13 libssl-dev python3
+          git -C upstream submodule status
+
+      - name: Record environment
+        run: |
+          mkdir -p results
+          {
+            echo "timestamp_utc=$(date -u +%FT%TZ)"
+            echo "upstream_commit=$(git -C upstream rev-parse HEAD)"
+            echo "workspace_commit=$(git rev-parse HEAD)"
+            echo "os=$(uname -a)"
+            echo "cpu=$(lscpu | grep -E 'Model name|Architecture|Flags' | head -3)"
+            echo "gcc=$(gcc-13 --version | head -1)"
+            echo "g++=$(g++-13 --version | head -1)"
+          } > results/environment.txt
+
+      - name: Build and benchmark baseline for N=16,64,256,1024
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CC=gcc-13
+          export CXX=g++-13
+          export CFLAGS="-O2 -march=native -mtune=native -DNDEBUG"
+          export CXXFLAGS="-O2 -march=native -mtune=native -DNDEBUG"
+          printf "ring_size,ring_pow,security_level,variant,signature_bytes,sign_time_ms,verify_time_ms\n" > results/upstream_baseline.csv
+
+          for entry in "16 4" "64 6" "256 8" "1024 10"; do
+            read -r n pow <<< "$entry"
+            echo "=== N=$n (2^$pow) ==="
+            sed -i -E "s/^#define FAEST_RING_2_POW .*/#define FAEST_RING_2_POW ($pow)/" upstream/config.h.in
+            make -C upstream -j2 all-sec128_cccs_11_7_102_avx2
+
+            bin="upstream/Additional_Implementations/sec128_cccs_11_7_102_avx2/sec128_cccs_11_7_102_avx2_test"
+            "$bin" '[mybench]' | tee "results/upstream_N${n}.log"
+
+            sig_bytes=$(awk '/signature bytes:/ {print $3; exit}' "results/upstream_N${n}.log")
+            sign_ms=$(awk '/sign time:/ {print $3; exit}' "results/upstream_N${n}.log")
+            verify_ms=$(awk '/verify time:/ {print $3; exit}' "results/upstream_N${n}.log")
+            test -n "$sig_bytes" && test -n "$sign_ms" && test -n "$verify_ms"
+            printf "%s,%s,128,CCCS-11,%.0f,%.9f,%.9f\n" "$n" "$pow" "$sig_bytes" "$sign_ms" "$verify_ms" >> results/upstream_baseline.csv
+          done
+
+      - name: Upload raw benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-voleith-baseline
+          path: results/
+          if-no-files-found: error
