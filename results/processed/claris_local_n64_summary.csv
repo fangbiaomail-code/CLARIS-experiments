@@ -1,0 +1,24 @@
+operation,variant,ring_size,selected_reports,samples,mean_ms,median_ms,stdev_ms,p95_ms,proof_count,proof_bytes,peak_rss_bytes,scope
+report_generate,ring,64,,30,104.2430389,100.5837975,12.62801179029061,134.74091234999997,1,50660,,Report generation with fresh message/nonce and context/tag derivation
+report_verify,ring,64,,30,127.20063363333334,123.0858525,13.798475452187152,152.02877834999998,1,50660,,Ring report verification including registry/public statement checks
+certificate_generate,claim,64,1,30,64.13703976666666,62.0611135,5.9998213396165765,74.58137904999998,1,49208,17682432,In-memory ordinary proof worker
+certificate_verify_core,claim,64,1,30,89.9222063,88.673754,6.0330654844861765,97.87417839999999,1,49208,17682432,Core proof verification excluding original report validation
+original_reports_validate,claim,64,1,30,119.1121545,117.8430335,7.1226826680394115,132.9064276,1,49208,,Separate original-report validation
+certificate_generate,anchor,64,2,30,75.2851399,67.94982250000001,20.734478458752974,101.43467624999998,1,49208,17678336,In-memory ordinary proof worker
+certificate_verify_core,anchor,64,2,30,99.74515536666667,92.5222005,21.09106943522365,137.61704059999997,1,49208,17678336,Core proof verification excluding original report validation
+original_reports_validate,anchor,64,2,30,243.76454746666667,239.987583,11.825864125588641,268.61658744999994,1,49208,,Separate original-report validation
+certificate_generate,bridge,64,2,30,132.68263486666666,131.6347195,7.346528243280676,148.03199354999998,2,98416,17666048,In-memory ordinary proof worker
+certificate_verify_core,bridge,64,2,30,175.63981563333334,176.50622950000002,7.693940957327769,184.98295910000002,2,98416,17666048,Core proof verification excluding original report validation
+original_reports_validate,bridge,64,2,30,238.44828326666666,237.083732,5.9171693665267695,249.265922,2,98416,,Separate original-report validation
+certificate_generate,anchor,64,3,30,134.5757087,132.78756049999998,11.798340472551173,149.73274345,2,98416,17641472,In-memory ordinary proof worker
+certificate_verify_core,anchor,64,3,30,182.09708143333333,179.911048,12.112412545086158,203.53061555,2,98416,17641472,Core proof verification excluding original report validation
+original_reports_validate,anchor,64,3,30,367.36577139999997,367.71966150000003,13.129965399770617,387.57692215,2,98416,,Separate original-report validation
+certificate_generate,bridge,64,3,30,238.1265453,206.796632,122.86225832080352,312.50196825,3,147624,17694720,In-memory ordinary proof worker
+certificate_verify_core,bridge,64,3,30,297.3431781333333,269.33935299999996,89.18980713063145,386.9194468499999,3,147624,17694720,Core proof verification excluding original report validation
+original_reports_validate,bridge,64,3,30,367.20597706666666,362.96804899999995,16.008515986228506,396.5886153999999,3,147624,,Separate original-report validation
+certificate_generate,anchor,64,5,30,340.7778196666667,360.66994950000003,93.22974589044875,502.8579889499996,4,196832,20705280,In-memory ordinary proof worker
+certificate_verify_core,anchor,64,5,30,406.4930841,399.7405565,67.28310644637074,494.76987949999994,4,196832,20705280,Core proof verification excluding original report validation
+original_reports_validate,anchor,64,5,30,751.5846561333333,774.0223025,114.86643350829391,895.69991285,4,196832,,Separate original-report validation
+certificate_generate,bridge,64,5,30,349.73888446666666,311.1681605,88.45702750638063,562.7359418,5,246040,19480576,In-memory ordinary proof worker
+certificate_verify_core,bridge,64,5,30,440.9874761333333,403.536553,108.69371173808123,557.6052827999998,5,246040,19480576,Core proof verification excluding original report validation
+original_reports_validate,bridge,64,5,30,655.0994189666667,622.0700655,85.86633113362904,859.0120416999998,5,246040,,Separate original-report validation
