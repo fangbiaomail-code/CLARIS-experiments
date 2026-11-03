@@ -1,0 +1,11 @@
+timestamp_utc=2026-11-03T04:58:01Z
+workflow_run=https://github.com/fangbiaomail-code/CLARIS-experiments/actions/runs/41581088450
+workspace_commit=dda72e01b8bbc5b41e30d8fdbdc7c812c32125a1
+upstream_commit=fa540fa152303a23b55a0a63efe20977076a6e15
+os=Ubuntu 24.04 x86_64
+cpu=AMD EPYC 7763 64-Core Processor
+compiler=gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+flags=-O2 -march=native -mtune=native -DNDEBUG
+security_level=128
+samples_per_ring=1
+note=Independent rerun. Keep separate from the earlier one-shot 128-bit run; different runner host and single sample.
