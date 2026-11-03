@@ -58,14 +58,26 @@ Selected values:
 
 - Report proof: 50,660 bytes; generation mean 104.243 ms; verification mean 127.201 ms.
 - Ordinary Claim proof: 49,208 bytes; generation mean 64.137 ms; core verification mean 89.922 ms.
-- Three-report Anchor: 98,416 proof bytes (2 proofs).
-- Three-report Bridge: 147,624 proof bytes (3 proofs).
+- Three-report link: Anchor 98,416 proof bytes (2 proofs); Bridge 147,624 proof bytes (3 proofs).
 
-Core proof verification and original-report validation are measured separately. No single end-to-end full-verification latency is claimed.
+### 5. CLARIS N=16 full-matrix measurements
+
+N=16 has completed all 11 cells (Claim plus Anchor/Bridge at s = 2, 3, 5, 10, 20), with 30 samples and 3 warm-ups per cell. The fresh public verifier reconstructed all reports/statements without loading private keys.
+
+Processed table: [claris_local_n16_summary.csv](results/processed/claris_local_n16_summary.csv).
+
+Selected values:
+
+- Report proof: 50,638 bytes; generation mean 72.015 ms; verification mean 96.447 ms.
+- Claim proof: 49,208 bytes.
+- At s=20, Anchor uses 19 proofs (934,952 bytes); Bridge uses 20 proofs (984,160 bytes).
+- Peak worker RSS recorded for the s=20 Anchor cell: 20,455,424 bytes.
+
+The s=10 Bridge timings have high dispersion; the sample statistics are retained rather than hiding the outliers.
 
 ## In progress
 
-### 5. Full CLARIS matrix
+### 6. Full CLARIS matrix
 
 The extended local benchmark is running with:
 
@@ -74,17 +86,17 @@ The extended local benchmark is running with:
 - Anchor and Bridge measured separately
 - 30 measured repetitions and 3 warm-ups per cell
 
-The run will be marked complete only after all four ring sizes have completed and the independent public-verifier reconstruction succeeds for each ring size.
+N=16 is complete. N=64 is currently running. The matrix will be marked complete only after all four ring sizes finish and each independent public-verifier reconstruction succeeds.
 
-### 6. Matched 256-bit upstream baseline
+### 7. Matched 256-bit upstream baseline
 
-GitHub Actions run [#41581088450](https://github.com/fangbiaomail-code/CLARIS-experiments/actions/runs/41581088450) is building the upstream 256-bit CCCS profile at the same four ring sizes. It is currently in progress. This is the required security-level-matched baseline; the earlier 128-bit run is retained as a separate reference.
+GitHub Actions run [#41581088450](https://github.com/fangbiaomail-code/CLARIS-experiments/actions/runs/41581088450) is building the upstream 256-bit CCCS profile at the same four ring sizes. It is still running. This is the required security-level-matched baseline; the earlier 128-bit run is retained as a separate reference.
 
 ## Not yet complete / limits
 
 - The full N × s CLARIS matrix has not yet completed.
 - The full evidence package is still an analytical byte-accounting model; no deployed network transfer was measured.
 - The ordinary-pair benchmark does not produce one combined end-to-end verifier latency. Report validation, proof verification, and wrapper checks remain separate.
-- External constructions (Park–Sealfon, Fiore et al., DualRing-PRF, SPRING, Chiang et al., and TalosLogic) have construction-level comparisons in the manuscript, but matched executable benchmarks are not yet complete.
+- External constructions (Park–Sealfon, Fiore et al., DualRing-PRF, SPRING, Chiang et al., and TalosLogic) have a source-grounded construction/security comparison in [SECURITY_PROPERTY_COMPARISON.md](docs/SECURITY_PROPERTY_COMPARISON.md), but matched executable benchmarks beyond the Chiang et al. upstream baseline are not complete.
 - The joint QROM proof-system transfer obligations and real-AES tuple assumptions remain conditional. Functional tests do not establish those security proofs.
 - The matrix-extension source copy and raw per-sample files are currently in the working experiment environment; they have not yet been committed as a complete source tree to this repository.
