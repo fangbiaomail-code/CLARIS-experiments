@@ -4,33 +4,28 @@ Public research workspace for reproducing and extending the CLARIS evaluation.
 
 ## Current execution status
 
-See [EXPERIMENT_STATUS.md](EXPERIMENT_STATUS.md) for the live experiment ledger, completed runs, parameters, and remaining work.
+See [EXPERIMENT_STATUS.md](EXPERIMENT_STATUS.md) for the experiment ledger, completed runs, parameters, and remaining work.
 
-- Upstream VOLEitH 128-bit baseline: completed for N = 16, 64, 256, 1024 (one sample per ring size).
-- Local CLARIS N=16 matrix: completed for s = 2, 3, 5, 10, 20, with Anchor and Bridge, 30 samples and 3 warm-ups per cell.
-- Local CLARIS N=64 ordinary-proof subset: completed with 30 samples and 3 warm-ups for report, claim, Anchor, and Bridge at s = 2, 3, 5.
-- Primitive microbenchmarks: 50,000 repetitions each for AES-256 key schedule, one-block AES-256 CTR, and SHAKE256.
-- Full CLARIS matrix N ∈ {16, 64, 256, 1024}, s ∈ {2, 3, 5, 10, 20}: running; N=64 is in progress.
-- Security-level-matched 256-bit upstream baseline: GitHub Actions run in progress.
+- Upstream VOLEitH baseline: 128-bit and matched 256-bit profiles completed for N = 16, 64, 256, 1024; each cell is a one-shot measurement.
+- Full-matrix CLARIS source build: successful for N = 16, 64, 256, 1024.
+- Functional smoke checks: all four ring sizes passed (27 joint checks, 10 fresh public-verifier checks, 9 identity-free link-verifier checks per N).
+- AES-byte, batching-algebra, opening-bound, and transcript-namespace checks: passed.
+- Full CLARIS matrix N ∈ {16, 64, 256, 1024}, s ∈ {2, 3, 5, 10, 20}: running with 3 warm-ups and 30 measured repetitions per cell. Anchor and Bridge are measured separately.
+- Earlier N=16 and N=64 measurements remain archived separately because they use a different host/source run; do not mix them with the current full-matrix run.
 
 ## Important reproducibility note
 
-The CLARIS-specific source package is currently being maintained in a separate working copy and is not yet committed as a complete source tree in this repository. The results committed here are explicitly labelled by their source/build provenance. Do not treat this workspace as fully self-contained until the source package and matrix runner are committed.
+The matrix-extension source is currently maintained in a local working copy and is not yet committed as a complete source tree in this repository. The committed results are labelled by source/build provenance. Do not treat this repository as fully self-contained until the source package and matrix runner are committed.
 
 ## Experimental comparison
 
 [SECURITY_PROPERTY_COMPARISON.md](docs/SECURITY_PROPERTY_COMPARISON.md) distinguishes claimability, user-controlled linking, tag-based linkability, accountable opening, and CLARIS's selected post-hoc association. It also states the conditional security scope and which external implementations have not been benchmarked.
 
-## What is reported in the manuscript
+## Manuscript-reported construction costs
 
 - Ordinary claim/link proof size: 49,208 bytes.
 - Three-report link core proof size: 98,416 bytes.
-- Ordinary-certificate functional checks: 27/27 at ring sizes 64 and 1024.
-- Fresh public joint-verifier checks: 10/10 at both ring sizes.
-- Fresh identity-free link-verifier checks: 9/9 at both ring sizes.
-- Anchor-versus-bridge ablation: three measured runs per cell after one warm-up, for N = 64 and 1024 and s = 2, 3, 5.
-
-The manuscript explicitly distinguishes measured proof objects from analytical communication costs and does not claim a measured end-to-end service latency.
+- The manuscript distinguishes measured proof objects from analytical communication costs and does not claim measured end-to-end network traffic or service latency.
 
 ## Repository layout
 
