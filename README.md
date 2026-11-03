@@ -7,14 +7,19 @@ Public research workspace for reproducing and extending the CLARIS evaluation.
 See [EXPERIMENT_STATUS.md](EXPERIMENT_STATUS.md) for the live experiment ledger, completed runs, parameters, and remaining work.
 
 - Upstream VOLEitH 128-bit baseline: completed for N = 16, 64, 256, 1024 (one sample per ring size).
-- Local CLARIS N=64 ordinary-proof measurements: completed with 30 samples and 3 warm-ups for report, claim, Anchor, and Bridge at s = 2, 3, 5.
+- Local CLARIS N=16 matrix: completed for s = 2, 3, 5, 10, 20, with Anchor and Bridge, 30 samples and 3 warm-ups per cell.
+- Local CLARIS N=64 ordinary-proof subset: completed with 30 samples and 3 warm-ups for report, claim, Anchor, and Bridge at s = 2, 3, 5.
 - Primitive microbenchmarks: 50,000 repetitions each for AES-256 key schedule, one-block AES-256 CTR, and SHAKE256.
-- Full CLARIS matrix N ∈ {16, 64, 256, 1024}, s ∈ {2, 3, 5, 10, 20}: running.
+- Full CLARIS matrix N ∈ {16, 64, 256, 1024}, s ∈ {2, 3, 5, 10, 20}: running; N=64 is in progress.
 - Security-level-matched 256-bit upstream baseline: GitHub Actions run in progress.
 
 ## Important reproducibility note
 
 The CLARIS-specific source package is currently being maintained in a separate working copy and is not yet committed as a complete source tree in this repository. The results committed here are explicitly labelled by their source/build provenance. Do not treat this workspace as fully self-contained until the source package and matrix runner are committed.
+
+## Experimental comparison
+
+[SECURITY_PROPERTY_COMPARISON.md](docs/SECURITY_PROPERTY_COMPARISON.md) distinguishes claimability, user-controlled linking, tag-based linkability, accountable opening, and CLARIS's selected post-hoc association. It also states the conditional security scope and which external implementations have not been benchmarked.
 
 ## What is reported in the manuscript
 
@@ -31,6 +36,7 @@ The manuscript explicitly distinguishes measured proof objects from analytical c
 
 - `CHAPTER_VII_EXPERIMENTS.md`: Chapter VII experimental targets and acceptance checklist.
 - `EXPERIMENT_STATUS.md`: actual run status and limitations.
+- `docs/SECURITY_PROPERTY_COMPARISON.md`: source-grounded comparison of related constructions and security scopes.
 - `configs/`: benchmark matrix.
 - `scripts/`: data aggregation utilities.
 - `results/raw/`: raw or source-reported observations, clearly labelled by provenance.
