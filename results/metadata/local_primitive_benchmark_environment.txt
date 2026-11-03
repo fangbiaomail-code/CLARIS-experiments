@@ -1,0 +1,9 @@
+timestamp_utc=2026-11-03
+source_inventory_sha256=f52e6c1fe5a562ca23137afa7dbcd1d2f53aa5e4a3ca1e26c857b9c7188de6be
+CPU=INTEL(R) XEON(R) PLATINUM 8573C
+OS=Linux 6.18.57 x86_64
+compiler=gcc (Debian 14.2.0-19) 14.2.0
+flags=-O2 -march=x86-64 -mavx2 -maes -mpclmul -std=c11
+primitive_repetitions=50000
+primitive_scope=AES-256 key schedule; one-block AES-256 CTR; SHAKE256 64-byte input to 32-byte output
+hash_note=The source hash interface uses SHAKE256; this result is not labelled SHA3.
