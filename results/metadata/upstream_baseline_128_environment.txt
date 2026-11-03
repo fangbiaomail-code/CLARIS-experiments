@@ -1,0 +1,9 @@
+timestamp_utc=2026-11-02T15:03:22Z
+upstream_commit=fa540fa152303a23b55a0a63efe20977076a6e15
+workspace_commit=f836057ef218c5e3d32f14f158964064b2330471
+os=Ubuntu 24.04 x86_64
+cpu=AMD EPYC 9V45 96-Core Processor
+gcc=gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+g++=g++-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+samples_per_ring=1
+security_level=128
