@@ -45,7 +45,7 @@ jobs:
             echo "g++=$(g++-13 --version | head -1)"
           } > results/environment.txt
 
-      - name: Build and benchmark baseline for N=16,64,256,1024
+      - name: Build and benchmark 128-bit and 256-bit baselines
         shell: bash
         run: |
           set -euo pipefail
@@ -55,25 +55,29 @@ jobs:
           export CXXFLAGS="-O2 -march=native -mtune=native -DNDEBUG"
           printf "ring_size,ring_pow,security_level,variant,signature_bytes,sign_time_ms,verify_time_ms\n" > results/upstream_baseline.csv
 
-          for entry in "16 4" "64 6" "256 8" "1024 10"; do
-            read -r n pow <<< "$entry"
-            echo "=== N=$n (2^$pow) ==="
-            sed -i -E "s/^#define FAEST_RING_2_POW .*/#define FAEST_RING_2_POW ($pow)/" upstream/config.h.in
-            make -C upstream -j2 all-sec128_cccs_11_7_102_avx2
+          for profile in "128 sec128_cccs_11_7_102" "256 sec256_cccs_22_0_196"; do
+            read -r sec variant <<< "$profile"
+            for entry in "16 4" "64 6" "256 8" "1024 10"; do
+              read -r n pow <<< "$entry"
+              echo "=== security=$sec N=$n (2^$pow) variant=$variant ==="
+              sed -i -E "s/^#define FAEST_RING_2_POW .*/#define FAEST_RING_2_POW ($pow)/" upstream/config.h.in
+              make -C upstream -j2 "all-${variant}_avx2"
 
-            bin="upstream/Additional_Implementations/sec128_cccs_11_7_102_avx2/sec128_cccs_11_7_102_avx2_test"
-            "$bin" '[mybench]' | tee "results/upstream_N${n}.log"
+              bin="upstream/Additional_Implementations/${variant}_avx2/${variant}_avx2_test"
+              log="results/upstream_${sec}_N${n}.log"
+              "$bin" '[mybench]' | tee "$log"
 
-            sig_bytes=$(awk '/signature bytes:/ {print $3; exit}' "results/upstream_N${n}.log")
-            sign_ms=$(awk '/sign time:/ {print $3; exit}' "results/upstream_N${n}.log")
-            verify_ms=$(awk '/verify time:/ {print $3; exit}' "results/upstream_N${n}.log")
-            test -n "$sig_bytes" && test -n "$sign_ms" && test -n "$verify_ms"
-            printf "%s,%s,128,CCCS-11,%.0f,%.9f,%.9f\n" "$n" "$pow" "$sig_bytes" "$sign_ms" "$verify_ms" >> results/upstream_baseline.csv
+              sig_bytes=$(awk '/signature bytes:/ {print $3; exit}' "$log")
+              sign_ms=$(awk '/sign time:/ {print $3; exit}' "$log")
+              verify_ms=$(awk '/verify time:/ {print $3; exit}' "$log")
+              test -n "$sig_bytes" && test -n "$sign_ms" && test -n "$verify_ms"
+              printf "%s,%s,%s,%s,%.0f,%.9f,%.9f\n" "$n" "$pow" "$sec" "$variant" "$sig_bytes" "$sign_ms" "$verify_ms" >> results/upstream_baseline.csv
+            done
           done
 
       - name: Upload raw benchmark artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: upstream-voleith-baseline
+          name: upstream-voleith-baseline-128-and-256
           path: results/
           if-no-files-found: error
