@@ -1,0 +1,4 @@
+operation,repetitions,total_ms,mean_us
+AES-256 key schedule,50000,6.699812000,0.133996240
+AES-256 one-block CTR encryption,50000,0.212378000,0.004247560
+SHAKE256 64-byte input to 32-byte output,50000,24.026717000,0.480534340
