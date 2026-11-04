@@ -191,6 +191,10 @@ T_{\mathrm{ClaimVerify}}.
 
 该值是两个独立计时结果的和，并非一次完整端到端流程的直接计时结果。论文中将其用于说明完整验证所涉及的两个主要计算部分，不将其误认为实际测得的单次总时延。
 
+图 6 展示了 Claim 证明在四种环规模下的生成和核心验证时间。可以看出，Claim 核心证明的计算时间在不同环规模下变化较小，与原始报告验证时间随环规模增加的趋势不同。
+
+![图 6 Claim 证明生成与验证时间](figures/chapter_vii/claim_generation_verification.png)
+
 ### 3）选择性关联证明的计算开销
 
 选择性关联阶段分别测试 Anchor 和 Common Bridge 两种结构。对每个环规模 \(N\) 和报告数量 \(s\)，均独立测量关联证明生成时间、关联证明核心验证时间和原始报告集合验证时间。
@@ -220,9 +224,9 @@ T_{\mathrm{ClaimVerify}}.
 
 图 6 和图 7 分别展示了关联证明生成和核心验证时间随报告数量变化的趋势。
 
-![图 6 Link 生成时间随报告数量变化](figures/chapter_vii/link_generation_vs_s.png)
+![图 7 Link 生成时间随报告数量变化](figures/chapter_vii/link_generation_vs_s.png)
 
-![图 7 Link 核心验证时间随报告数量变化](figures/chapter_vii/link_verification_vs_s.png)
+![图 8 Link 核心验证时间随报告数量变化](figures/chapter_vii/link_verification_vs_s.png)
 
 ### 4）基础运算调用次数分析
 
@@ -279,7 +283,7 @@ P_{\mathrm{Bridge}}=s.
 
 这一结果说明，在当前实现和测试范围内，多报告关联的主要计算开销来自普通证明的重复生成与验证。Anchor 通过减少一份普通证明降低了关联过程的计算量和通信量。该优势在报告数量较少时更为明显；当 \(s\) 增大时，单份证明所占比例下降，因此相对节省比例也随之降低。
 
-![图 8 Anchor 与 Common Bridge 消融比较](figures/chapter_vii/anchor_vs_bridge.png)
+![图 9 Anchor 与 Common Bridge 消融比较](figures/chapter_vii/anchor_vs_bridge.png)
 
 ## E. 扩展性与内存开销（Scalability and Memory Overhead）
 
@@ -305,7 +309,7 @@ P_{\mathrm{Bridge}}=s.
 
 上述数值表示对应进程运行期间的峰值常驻内存，并非单个证明对象的内存大小。图 9 展示了不同报告数量下的峰值内存变化。
 
-![图 9 峰值内存随报告数量变化](figures/chapter_vii/peak_rss_vs_s.png)
+![图 10 峰值内存随报告数量变化](figures/chapter_vii/peak_rss_vs_s.png)
 
 ### 4）功能验证结果
 
