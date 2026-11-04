@@ -7,31 +7,33 @@ Public research workspace for reproducing and extending the CLARIS evaluation.
 See [EXPERIMENT_STATUS.md](EXPERIMENT_STATUS.md) for the experiment ledger, completed runs, parameters, and remaining work.
 
 - Upstream VOLEitH baseline: 128-bit and matched 256-bit profiles completed for N = 16, 64, 256, 1024; each cell is a one-shot measurement.
-- Full-matrix CLARIS source build: successful for N = 16, 64, 256, 1024.
-- Functional smoke checks: all four ring sizes passed (27 joint checks, 10 fresh public-verifier checks, 9 identity-free link-verifier checks per N).
-- AES-byte, batching-algebra, opening-bound, and transcript-namespace checks: passed.
-- Full CLARIS matrix N ∈ {16, 64, 256, 1024}, s ∈ {2, 3, 5, 10, 20}: running with 3 warm-ups and 30 measured repetitions per cell. Anchor and Bridge are measured separately.
-- Earlier N=16 and N=64 measurements remain archived separately because they use a different host/source run; do not mix them with the current full-matrix run.
+- Earlier CLARIS prototype benchmark: N = 64 and 1024, s = 2, 3, 5; 30 samples and 3 warm-ups per configuration in the archived dataset.
+- Anchor/Common Bridge controlled comparison and proof-size tables are archived under `results/processed/`.
+- Full-matrix build and additional functional checks are described in [EXPERIMENT_STATUS.md](EXPERIMENT_STATUS.md); do not confuse these checks with a completed 30-run full N × s matrix.
 
-## Important reproducibility note
+## Chapter VII draft and data
 
-The matrix-extension source is currently maintained in a local working copy and is not yet committed as a complete source tree in this repository. The committed results are labelled by source/build provenance. Do not treat this repository as fully self-contained until the source package and matrix runner are committed.
+- [Chinese Chapter VII draft](docs/VII_performance_evaluation_CN.md)
+- [Benchmark scope and reproduction limitations](docs/experiment_limitations_and_reproduction_notes.md)
+- [Benchmark-matrix extension note](docs/CLARIS_MATRIX_EXTENSION_NOTE.md)
+- [Security/property comparison of related constructions](docs/SECURITY_PROPERTY_COMPARISON.md)
+- [Report performance data](results/processed/report_performance.csv)
+- [Claim/Anchor/Bridge performance data](results/processed/certificate_performance.csv)
+- [Chapter VII benchmark provenance](results/metadata/claris_chapter_vii_benchmark_metadata.json)
 
-## Experimental comparison
+## Important interpretation limits
 
-[SECURITY_PROPERTY_COMPARISON.md](docs/SECURITY_PROPERTY_COMPARISON.md) distinguishes claimability, user-controlled linking, tag-based linkability, accountable opening, and CLARIS's selected post-hoc association. It also states the conditional security scope and which external implementations have not been benchmarked.
+The Chapter VII draft uses archived 2026-10-02 benchmark measurements. It does not claim those values were measured on the current hosted runner. The formal performance dataset covers N = 64, 1024 and s = 2, 3, 5 only. It does not contain measured N = 16, 256 or s = 10, 20 CLARIS performance cells.
 
-## Manuscript-reported construction costs
+External schemes have a source-grounded feature/construction comparison, but matched executable benchmarks against Park–Sealfon, Fiore et al., DualRing-PRF, SPRING, and other external schemes are not complete. The Chiang et al. upstream baseline is retained as a separate reference and is not a matched Claim/Link benchmark.
 
-- Ordinary claim/link proof size: 49,208 bytes.
-- Three-report link core proof size: 98,416 bytes.
-- The manuscript distinguishes measured proof objects from analytical communication costs and does not claim measured end-to-end network traffic or service latency.
+The full-matrix source extension and full raw per-sample matrix outputs are not currently committed as a self-contained source package in this repository. The matrix-extension note describes the intended harness changes and must not be mistaken for a completed full-matrix result.
 
 ## Repository layout
 
 - `CHAPTER_VII_EXPERIMENTS.md`: Chapter VII experimental targets and acceptance checklist.
 - `EXPERIMENT_STATUS.md`: actual run status and limitations.
-- `docs/SECURITY_PROPERTY_COMPARISON.md`: source-grounded comparison of related constructions and security scopes.
+- `docs/`: chapter draft, reproduction notes, and related-work comparison.
 - `configs/`: benchmark matrix.
 - `scripts/`: data aggregation utilities.
 - `results/raw/`: raw or source-reported observations, clearly labelled by provenance.
@@ -44,7 +46,7 @@ The matrix-extension source is currently maintained in a local working copy and 
 2. Keep raw samples; do not store only averages.
 3. Separate report signing, report verification, claim generation/verification, link generation/verification, and full verification.
 4. Distinguish additional-certificate verification from full verification including original reports.
-5. Never combine Anchor/Bridge timings from the repeated-OR ablation with ordinary-pair timings.
+5. Never combine Anchor/Bridge timings from different benchmark profiles or hosts.
 6. Do not label analytical byte counts as measured network traffic.
 7. External schemes must be compared only when implementation, security target, and measured operation are sufficiently matched. Otherwise report construction-level properties separately.
 
