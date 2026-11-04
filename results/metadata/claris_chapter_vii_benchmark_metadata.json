@@ -1,0 +1,12 @@
+{
+  "source_schema": "claris-ordinary-benchmark-v2",
+  "source_date": "2026-10-02",
+  "host": "macOS-15.3-arm64-arm-64bit-Mach-O",
+  "cpu": "arm",
+  "compiler": "Apple clang version 16.0.0 (clang-1600.0.26.3)",
+  "execution_target": "x86_64 AVX2 AES PCLMUL",
+  "transcript_profile": "CLARIS-Q-v2-G-v1",
+  "repeats": 30,
+  "warmups_per_cell": 3,
+  "note": "Archived benchmark summary; not a new cryptographic benchmark run on the current hosted Linux runner. Full end-to-end verification latency was not measured."
+}
