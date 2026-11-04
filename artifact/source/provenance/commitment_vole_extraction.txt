@@ -1,0 +1,390 @@
+Classical log extraction for the actual compressed commitment and VOLE check
+CLARIS Q v2 / G v1, source audit 2026-10-02
+
+Scope
+-----
+This note proves two concrete extraction components using the actual namespaces,
+compressed opening parser, small_vole conversion and 272-bit VOLE check. It does
+not identify hash extraction with a complete weak-simulation-extractability
+proof. The prefix ordering and programming conditions required for the final
+composition are explicit below. All random-oracle statements are classical.
+
+Notation and exact source profile
+--------------------------------
+Security parameter lambda=256; tau=BITS_PER_WITNESS=22; 250 final-challenge bits
+are used, divided into eight k=12 blocks and fourteen k=11 blocks. The final
+six bits must be zero. The flat forest has
+    L = 8*4096 + 14*2048 = 61440 leaves.
+G uses ordinary faest_sign/verify, Q uses faest_tagged_ring_sign/verify. Both
+use the same commitment/conversion/check construction, at different row counts.
+The Q-v2 selector/batching repair does not change these source operations.
+
+Stage 6 is the SHAKE leaf generator. A 256-bit leaf seed and the 128-bit IV,
+followed by its fixed suffix, map to a 768-bit stream prefix (m,c), with m of
+256 bits and c of 512 bits. Stage 7 maps the ordered leaf commitments for one
+small-VOLE vector (plus suffix 1) to a 512-bit digest. Stage 8 maps the 22 ordered
+stage-7 digests (plus suffix 1) to the 512-bit commitment digest h. Stage 9 maps
+256 ordered 272-bit column-check strings (plus suffix 1) to a 512-bit digest d9.
+The namespace prefix fixes proof kind, profile and stage. Parsing each input
+uses its exact configured length; malformed inputs do not count as preimages.
+For XOF queries, the oracle has one consistent stream per complete input. The
+experiment may internally sample/cache the necessary 768-bit or 512-bit prefix
+on the first input query, even when the adversary requests a shorter prefix.
+This exposes no extra bits to the adversary and makes the log extractor precise.
+
+1. Straight-line extractor for the compressed all-but-one commitment
+------------------------------------------------------------------
+Take a snapshot of the stage-6/7/8 query tables when (h,IV) is committed. In the
+actual hash-chain implementation this is immediately before the first relevant
+stage-3 challenge query, whose input contains h, IV and all correction strings.
+
+ExtVC(h,IV,log):
+  (a) Find the first correctly sized stage-8 preimage of h in the snapshot.
+      If absent, return L bottom symbols. Otherwise parse (h_0,...,h_21).
+  (b) For each h_i, find the first correctly sized stage-7 preimage of the
+      configured vector length. If absent, set all entries of that vector to
+      bottom. Otherwise parse the ordered c_(i,x).
+  (c) For each c_(i,x), find the first stage-6 query with this IV whose 512-bit
+      output suffix equals c_(i,x). If absent, output bottom there. Otherwise
+      output its 256-bit message prefix m_(i,x).
+
+This is efficient using dictionaries indexed by output digest; it does not
+invert AES, the tree PRG, or an unqueried random-oracle input. It never rewinds.
+Repeated identical commitments are allowed. Selecting the first preimage only
+matters on an output collision.
+
+Why compressed opening does not invalidate this extractor:
+vector_com.c's batch_vector_verify constructs dont_reveal as the ancestors of
+one puncture in each of the 22 vector-position sets. Its frontier consists of
+unmarked children of marked nodes. The verifier reads frontier seeds in the
+same bottom-up order as the prover, expands only unmarked nodes, and applies
+write_leaf to every unpunctured leaf. The mapping BATCH_VEC_POS_IN_TREE is
+bijective: the first 2048 positions per vector occupy 22*2048 flat positions;
+the eight long vectors' remaining entries occupy the final 8*2048 positions.
+The XOR-by-delta and Gray-code permutation affect message output order only;
+stage-7 leaf commitments stay in original vector/index order. Thus every
+returned unpunctured message is accompanied by an actual stage-6 query, and
+all leaf commitment lists are checked through stages 7 and 8. The verifier
+need not establish a common root seed for this binding property. The opening
+threshold and zero padding only discard openings; they add no accepting cases.
+No independence assumption about separate GGM trees is used for this argument.
+
+Outside digest-collision or late-target-hit events, every accepted opening
+returns the same messages as ExtVC at all unpunctured positions. Proof: if the
+verified stage-8 list differs from the extracted list, there is a stage-8
+collision; if no stage-8 preimage existed at extraction, a later stage-8 query
+hit the previously fixed h. Apply the same dichotomy at each stage-7 list and
+then at each opened stage-6 suffix. A different message under the same suffix
+requires a stage-6 suffix collision. An extracted bottom can be opened only by
+a late query hitting its already fixed target. This is precisely extractable
+binding with bottom entries, not an assertion that every leaf is known.
+
+A conservative explicit bound for at most S commitment snapshots and total
+q_a distinct queries to stages a=6,7,8, including later verification queries, is
+    eps_VC <= [sum_(a=6,7,8) binom(q_a,2)
+               + S*(q_8 + 22*q_7 + 61440*q_6)] / 2^512.
+Cap the bound at one. The collision terms cover distinct queried inputs with
+matching relevant 512-bit outputs. At a snapshot, at most 1,22,61440 as-yet
+unresolved targets are fixed for stages 8,7,6 respectively; a future fresh
+output hits each with probability 2^-512. Union-bounding these targets proves
+the second term even for adaptive snapshots and IVs. This deliberately loose
+polynomial bound suffices for extractable binding; no 245-dependent loss is
+needed. Setup is unchanged, so the setup-distance term is zero.
+
+2. The actual 272-bit linear VOLE hash
+------------------------------------
+Let ell be QUICKSILVER_ROWS for G and QUICKSILVER_TAGGED_RING_ROWS for Q, and let
+n=ceil(ell/256). A row string x consists of ell data bits and 272 mask bits.
+The function implemented by vole_check_both before the stage-9 digest is
+    L_chi(x) = Trunc_272( A*[P_alpha(x_data), R_beta(x_data)]^T )
+               xor x_mask,
+where A is a uniformly random 2-by-2 matrix over F_(2^256), alpha is an
+independent uniform full-field element, and beta is the independent 64-bit
+key. R_beta is the code's GF(2^64) polynomial hash, embedded in F_(2^256).
+Trunc_272 retains the entire first output field and 16 bits of the second.
+The input is padded with zero bits to n full-field coefficients. The alpha
+polynomial is nonzero for every nonzero data difference, with degree <= n-1.
+The function is GF(2)-linear, including its mask part.
+
+For any fixed nonzero difference e, independent of fresh chi,
+    Pr[L_chi(e)=0] <= (n-1)/2^256 + 2^-272 =: eps_L.
+If the data part is zero and the mask is nonzero, the collision probability is
+zero. Otherwise P_alpha is nonzero except with probability (n-1)/2^256. When
+it is nonzero, each independent first matrix coefficient makes its output
+field uniform, even conditional on the second matrix coefficient and beta.
+The first output contributes 256 independent uniform bits and the second
+contributes 16, so the remaining probability is 2^-272. This is the concrete
+almost-universal bound, not an assumed independent-coefficient replacement.
+The evaluated counts are n=56 for G and n=58 for either Q ring size.
+
+3. Normalize accepted VOLE reconstructions to one fixed correlation
+-----------------------------------------------------------------
+The next statement is an algebraic extraction lemma on a correctly ordered
+classical transcript prefix, outside the ExtVC/Ext9 bad events. It explicitly
+handles incomplete leaf vectors rather than assuming all leaves are known.
+
+For each fully extracted small-VOLE vector i, expand its leaf messages using
+the configured deterministic AES-CTR PRG to row strings z_(i,x). Set c_0=0 and
+let c_i be the transmitted correction for i>0. Define
+    u_i = (xor_x z_(i,x)) xor c_i,
+    V_(i,t) = xor_(x : x_t=1) z_(i,x),     0<=t<k_i.
+The conversion in small_vole.c computes these exact XOR syndromes: xor_reduce
+handles low bits and its Gray-code accumulation handles the remaining bits.
+For any hidden index delta_i and matching all-but-one opening, the receiver
+output before the witness correction is
+    q_(i,t) = V_(i,t) xor delta_(i,t)*u_i.              (1)
+Indeed, changing variables in the XOR-shifted receiver keys gives coefficient
+x_t xor delta_(i,t); the missing x=delta_i term has coefficient zero. The
+receiver also adds delta_(i,t)*c_i. This proves (1) independently of PRG
+pseudorandomness. It uses the actual XOR and inverse-Gray index maps.
+
+Before the stage-4 challenge query, read the 272-bit check proof u_hat and the
+stage-9 digest d9 from its input. Ext9 finds the first correctly sized preimage
+of d9 in the stage-9 snapshot and parses its 256 column values D_(i,t). It is
+another digest log extractor. With S4 such snapshots and q9 total stage-9
+queries, its failure probability is at most
+    eps_9 <= [binom(q9,2)+S4*q9]/2^512.
+If a valid preimage is missing, no accepting continuation exists outside this
+bad event. The final verifier recomputes exactly this preimage; a different
+one would be a collision.
+
+By linearity, a fully extracted block can pass its extracted column checks
+only if, for every t,
+    D_(i,t) = L_chi(V_(i,t))
+                 xor delta_(i,t)*(L_chi(u_i) xor u_hat).           (2)
+Call i an anchor if it is complete and L_chi(u_i)=u_hat. Select the first anchor
+if any, and put u=u_i. All u_i are fixed before fresh stage-3 chi. Exclude the
+event that two distinct complete u_i,u_j have equal L_chi hashes. Its probability
+per fresh stage-3 query is at most binom(22,2)*eps_L. The adversary may choose
+u_hat after seeing chi; this pairwise event already covers that adaptive choice.
+
+Given an anchor, define a matrix V* before the stage-4 challenge as follows.
+  - Complete block j with L_chi(u_j)=u_hat: outside the pairwise bad event,
+    u_j=u, so use V*_j=V_j. Incorrect D values make every continuation reject.
+  - Complete block j with B_j=L_chi(u_j) xor u_hat !=0: (2) fixes every bit
+    delta_(j,t) to one beta_(j,t), or has no solution. Reject extraction if it
+    has no solution. Otherwise set
+      V*_(j,t)=V_(j,t) xor beta_(j,t)*(u_j xor u).
+    Every accepting continuation has delta_j=beta_j and hence satisfies
+    q_(j,t)=V*_(j,t) xor delta_(j,t)*u.
+  - Incomplete block j: if two or more entries are bottom, no all-but-one
+    opening can accept. With exactly one bottom at h_j, acceptance requires
+    delta_j=h_j. Fill the missing PRG *row string*, solely for this algebraic
+    extraction, with
+      z*_(j,h_j)=u xor c_j xor xor_(x!=h_j) z_(j,x),
+    and let V*_j be the resulting XOR syndromes. There is no claim that this
+    filled string has a PRG preimage. Since its coefficient in the actual
+    receiver computation is zero at delta_j=h_j, (1) still implies the same
+    global correlation for every accepting continuation.
+  - For the six unused columns, set V*=0; their verifier q and delta bits are
+    both zero by construction.
+
+Thus V* and the Boolean row vector u are fixed before the fresh batching
+challenge, and every accepting continuation has
+    Q = V* xor u*Delta
+on all QuickSilver and VOLE-check rows. Applying the transmitted witness
+correction d to the witness rows gives
+    Q_corrected = V* xor w_ext*Delta,  w_ext=d xor u_witness,
+with the remaining mask rows still represented by the fixed tail of u.
+This is precisely the affine polynomial representation needed by the concrete
+QuickSilver degree/batching proof. V* need not equal the malicious prover's
+internal matrix; it is determined by the committed checks and suffices to
+represent the accepting verifier computation.
+
+If no anchor exists, every complete block with B_i!=0 fixes its entire delta_i
+by (2), and every incomplete block fixes it to its unique missing index (or no
+continuation can accept). All 250 used bits are therefore fixed before the
+final challenge; the other six must be zero. For each raw fresh unprogrammed
+stage-5 query there is at most ONE accepting 256-bit delta, with probability
+2^-256. Opening-size filtering can only discard it. Count every attempted
+counter, including rejected values; do not condition on a successful grinder.
+
+Consequently this correlation extractor has additional error bounded by
+    Q3*binom(22,2)*[(n-1)/2^256 + 2^-272] + Q5/2^256
+besides eps_VC, eps_9, and prefix-order/programming bad events. Q3 and Q5 count
+fresh classical queries at those stages, including final assessment. The
+extractor computes at most L PRG row strings per relevant transcript prefix
+and is polynomial-time; no rewind, full hidden-tree recovery or AES inversion
+is used.
+
+4. Exact remaining composition obligation
+-----------------------------------------
+The preceding results close the compressed VC's extractable-binding property
+and normalize the optimized checked VOLE transcript to a fixed affine witness.
+Together with the v2 selector/batching proof, they yield a direct classical
+knowledge-extraction route on chronological, unprogrammed challenge chains.
+For Q the displayed algebraic terms combine to
+    Q3*231*[(57)/2^256+2^-272]
+      + Q4*(M+F)/2^256 + 5*Q5/2^256
+plus eps_VC+eps_9 and hash-chain ordering/programming events.
+For G replace 57 by55, (M+F) by3688, and final factor5 by3 (degree two).
+These are components of a theorem, not yet a complete published WSE claim.
+
+The minimum remaining classical statement is now precise: establish the online
+public simulator with a joint oracle controller; show it leaves stages6--9
+unprogrammed and only programs stage5 points on its own complete-statement
+chains; bound reuse of one of those programmed points by a fresh full statement,
+and bound reverse-order/guessed-link events for stages1,3,4,5. The incoming
+challenge strings bind the earlier omitted commitment/check digests, so this
+is a query-log/prefix lemma rather than a missing new compressed-tree extractor.
+Queries from honest or simulated services must be included in the counts and
+the bound must apply under their adaptive auxiliary computation. In particular,
+there is no permission to erase or reset a log when switching proof kinds.
+The namespace composition lemma then sums the two resulting base errors.
+None of the classical query-log reasoning supplies a quantum extractor.
+
+Primary reference: FAEST ePrint 2023/996, Definition7 and Lemmas1,3,4. The
+compressed-forest extractable-binding proof above adapts Lemma1's digest/leaf
+extraction logic; the explicit VOLE normalization avoids silently assuming
+that all vector entries were extracted or that a different compiler instance
+already proves the optimized check.
+
+5. Prefix-order and simulated-chain isolation: explicit classical lemma
+----------------------------------------------------------------------
+All comparisons and conversions in Sections 2--3 are on exactly ell+272 bits,
+not on the aligned col_len allocation. Define every z_i, c_i, u_i and V_i by
+truncating to those relevant rows. Extra alignment padding is not hashed by L
+and cannot be used in its collision argument. This truncation suffices because
+QuickSilver accesses only the first ell rows. The candidate witness uses its
+first witness_bits rows; the remaining QuickSilver rows are its tail masks.
+
+Assume an online simulator/controller which:
+ (i) answers namespaces 1,3,4,6,7,8,9 as unprogrammed independent random
+     functions with consistent XOF streams;
+ (ii) creates simulated proofs through the exact verification equations and
+      programs only fresh stage-5 points, each recorded with its complete
+      simulation-query statement and an honestly queried 1->3->4 prefix chain;
+ (iii) never changes an already answered oracle value; handles a prequeried
+       programming point by its specified abort rule; records every simulation
+       query in the freshness log, including a request causing such an abort.
+These are structural properties, separate from the ZK distribution theorem.
+For the WSE experiment simulation statements are true and witness checked,
+though the same public simulator may be used more broadly in privacy hybrids.
+
+Let q_a count distinct stage-a inputs actually queried or programmed by the
+adversary, services, simulator and final verification; count internal scalar
+lanes individually. We may include unused programmed counter points and use
+upper bounds on all counts. The lengths of the chained values are
+    b1=512 (statement digest mu),
+    b3=1344 (VOLE-check challenge chi),
+    b4=832 for G, or1664 for Qv2 (batching challenge).
+The stage-3 input begins with mu; the stage-4 input begins with chi; every
+stage-5 input begins with the full batching challenge. All subsequent fields
+have fixed lengths under the declared parameter profile, except the original
+message at stage1, whose canonical statement encoding is assumed injective.
+
+Define BadChain to include:
+ (a) any output collision among distinct stage1,3,4 inputs;
+ (b) a stage3 input using a mu before its eventual stage1 preimage was queried;
+ (c) a stage4 input using a chi before its eventual stage3 preimage was queried;
+ (d) a stage5 input using a batching value before its eventual stage4 preimage
+     was queried.
+Only a pre-use that later acquires a matching preimage is bad. Points with no
+preimage and no accepting continuation are harmless. Each later fresh output
+hits at most the number of previously chosen dependent targets. Therefore
+    eps_chain <= [binom(q1,2)+q1*q3]/2^512
+               +[binom(q3,2)+q3*q4]/2^1344
+               +[binom(q4,2)+q4*q5]/2^b4.
+The first three oracle families are never programmed, so their fresh outputs
+remain uniform even under the simulator's adaptive stage5 programming. If an
+actual stage5 query was previously made with only a short XOF output request,
+its underlying 256-bit output is still the same cached random string.
+
+Outside BadChain, every accepting final transcript determines a unique
+chronologically ordered stage1->stage3->stage4->stage5 chain. At the stage3
+query, run ExtVC on the log snapshot. At stage4, run Ext9 and the correlation
+normalization. Both the Boolean witness and V* are then fixed before the
+stage4 response. The final public verifier determines which recorded chain
+is relevant; the extractor can reconstruct these historical snapshots after
+the adversary halts. Storing/querying the snapshot metadata is polynomial in
+the total query count and configured leaf count; no rewind is required.
+
+An accepted proof fresh in its complete statement cannot use a programmed
+stage5 point outside BadChain. Otherwise it has the same batching challenge
+as the simulation chain associated with that programmed point. No stage4
+collision implies the same stage4 input, hence the same chi. No stage3
+collision implies the same stage3 input, hence the same mu. No stage1
+collision and injective statement encoding imply the same full statement,
+contradicting freshness. This proof uses statement freshness, not proof-byte
+freshness. It remains valid when the adversary adaptively chooses its final
+proof kind; use the separate namespace composition lemma for that selection.
+
+The complete single-output extraction algorithm is now explicit:
+ 1. Reconstruct and verify the final proof and reject if it is invalid/not fresh.
+ 2. Follow its unique input/output chain through the complete classical logs.
+ 3. At its pre-stage3 snapshot extract the leaf arrays (bottom allowed).
+ 4. At its pre-stage4 snapshot extract stage9 values and construct the anchor
+    witness w=d xor u and normalized matrix V*, or return bottom if no anchor.
+ 5. Check the extracted circuit witness and project it to the scheme relation
+    (a key for G; selector index and key for Q). Output that witness when valid,
+    bottom otherwise.
+For a parameter family this is efficient in the configured leaf-vector size
+and row count; the usual asymptotic requirement is that the vector size grows
+polynomially with the security parameter. The concrete profile has L=61440.
+
+Let S be the number of stage3 commitment snapshots used in the bookkeeping,
+and S4 the number of stage4 digest snapshots (S<=q3 and S4<=q4 suffice). With
+the ExtVC and Ext9 bounds above and the proven Qv2 circuit/batching language,
+this extractor has single-output weak-simulation error at most
+    e_Q <= eps_VC+eps_9+eps_chain
+         + q3*231*(57/2^256+2^-272)
+         + q4*(M+F)/2^256 + 5*q5/2^256.
+For G, the corresponding bound is
+    e_G <= eps_VC+eps_9+eps_chain
+         + q3*231*(55/2^256+2^-272)
+         + q4*3688/2^256 + 3*q5/2^256.
+All bounds are capped at one; profile/canonical-encoding/application-hash
+collision terms, if not fixed structurally, are separate and must be added.
+The q5 term includes final verification's fresh query and every raw counter
+attempt. The +1 in degree+1 is the no-anchor case; in the anchor case the
+remaining +4 (Q) or +2 (G) comes from the fixed polynomial's root bound.
+We deliberately sum rather than optimize these disjoint cases.
+
+Justification of the error decomposition: outside digest/ordering events,
+each fresh stage3 response is bad only on the pairwise linear-hash collision
+bounded in Section3. For an accepting extension with an anchor, the extracted
+witness and V* are fixed before the fresh stage4 response. Its residual can
+vanish only with the already-proven structured batching probability. After
+fixing the pre-stage5 transcript, a false extracted witness leaves a nonzero
+verification polynomial of degree at most4 (Q) or2 (G); at a fresh stage5
+point its output hits a root with that probability. Without an anchor, there
+is at most one acceptable final delta. Union-bound all queried prefixes. The
+fresh-statement argument excludes the simulator's programmed final points,
+so this argument holds in the same matched simulator/extractor experiment.
+
+This is a conditional WSE theorem for the explicitly specified only-stage5
+controller, with every extraction error term given. Its outstanding premise
+is not another opaque extractor: it is the simulator's independently auditable
+structural and distribution properties. The weak-extraction conclusion uses
+(i)--(iii) only; the accompanying ZK conclusion additionally needs the actual
+public simulator's distribution proof. No assertion is made for a simulator
+that programs stage3/4/6/7/8/9, or for quantum oracle access.
+
+Log visibility clarification: the matched extractor can inspect the controller's
+complete internal query log, including private calls made by simulated or
+honest proof services. The adversary in the ZK/privacy experiments sees only
+its own public-oracle calls and returned proof/service outputs. Internal log
+access is an extraction resource; it is not leaked in the simulated public
+view and does not defeat the missing-stream hiding argument. Honest completion
+of short XOF queries in the controller likewise reveals no extra output bits.
+
+Independent audit: the linked-privacy agent checked Section3's anchor and
+forced-delta normalization against the source: anchor u and V* are fixed before
+H4, arbitrary filling of a single bottom rowstring is valid because its receiver
+coefficient vanishes, two bottoms forbid an accepted opening outside VC bad,
+and the no-anchor probability must be charged to raw H5 queries. These points
+were confirmed; the padding and log-visibility restrictions above are explicit.
+
+Minor parser detail: Ext9 may reject immediately unless the six unused-column
+check strings are zero. The real verifier clears those q columns and requires
+their delta bits to be zero, so all six recomputed strings are zero. This adds
+no error and leaves the preceding normalization unchanged.
+
+Honest-prover randomness detail: the extraction result imposes no assumption
+on H2 or the prover's seed-generation distribution; H2 is absent from public
+verification. The separate ZK theorem must specify the randomized Prove profile
+(fresh private random_seed in the wrapper). The underlying C API's optional
+NULL/zero-length random seed gives a deterministic mode and is not silently
+covered by a randomized-prover ZK claim. Its simulator analysis must account
+for guesses of the private H2 input and preserve the full final four-lane
+counter batch, including lanes after the first acceptable one.

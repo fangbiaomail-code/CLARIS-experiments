@@ -1,0 +1,73 @@
+\subsection{Classical extraction from the concrete transcript}\label{app:concrete-extraction}
+This subsection analyzes the Q version 2 and G version 1 profiles in a classical random-oracle model. All oracle stages refer to Appendix~\ref{app:namespace-composition}. Counts include adversarial queries, honest and simulated services, all four scalar lanes of a vectorized call, and final verification. The extractor sees the controller's private query log; that log is not part of the adversary's public view. On first touching an XOF input, the controller caches the full protocol-length prefix (768 bits at stage 6 and the required lengths elsewhere), revealing only the prefix requested by the caller.
+
+Both profiles use $\tau=22$ small-VOLE vectors: eight have $4096$ leaves and fourteen have $2048$, totaling $L=61{,}440$. Their hidden indices consume 250 challenge bits; the remaining six bits must be zero. Stage 6 maps a leaf seed and IV to a 256-bit message and a 512-bit commitment. Stage 7 hashes each ordered leaf-commitment vector to 512 bits; stage 8 hashes the 22 vector digests to a 512-bit commitment digest. Stage 9 hashes the 256 ordered 272-bit column checks to a 512-bit digest.
+
+\paragraph{Commitment extraction.}
+At the first relevant stage-3 query, snapshot the logs. Follow the commitment digest through its first correctly sized stage-8 preimage, each stage-7 preimage, and each stage-6 commitment suffix with the prescribed IV. Output the corresponding leaf messages, retaining $\bot$ wherever a preimage is absent. This is a table lookup, not inversion of an unqueried hash.
+
+The compressed opening reveals seeds at the frontier of the union of the 22 hidden paths. The verifier expands every unhidden leaf and recomputes its stage-6 commitment, then stages 7 and 8. Thus an accepted opening can disagree with an extracted message only through a digest collision, or by later hitting a digest that had no preimage at the snapshot. Compression changes the encoding of the opened seeds, not this argument. If $S_3$ snapshots and $q_a$ distinct stage-$a$ inputs occur, a conservative bound is
+\[
+ \eps_{\rm VC}\le
+ \frac{\sum_{a=6}^8\binom{q_a}{2}
+       +S_3(q_8+22q_7+61{,}440q_6)}{2^{512}}.
+\]
+The bound permits repeated leaf commitments and charges ambiguities to collisions. The threshold on opening length only rejects additional openings. A stage-9 log lookup at each stage-4 snapshot similarly extracts all column-check values with failure at most
+\[
+ \eps_9\le[\tbinom{q_9}{2}+S_4q_9]/2^{512}.
+\]
+
+\paragraph{The implemented VOLE check.}
+Let $\ell$ be the number of QuickSilver rows, and retain exactly $\ell+272$ bits of each expanded stream; allocation padding is excluded. Put $n=\lceil\ell/256\rceil$, which is 56 for G and 58 for Q. The actual check is a binary linear map $\mathcal L_\chi$ consisting of a full-field polynomial hash, a 64-bit polynomial hash, a random two-by-two field matrix, truncation to 272 bits, and XOR with the 272-bit tail mask. For a fixed nonzero difference $e$ and fresh $\chi$,
+\[
+ \Pr[\mathcal L_\chi(e)=0]\le (n-1)/2^{256}+2^{-272}.
+\]
+Indeed, the full-field data polynomial has at most $n-1$ roots. Otherwise the two independent matrix rows supply a uniform 256-bit first output and 16 retained bits from the second. A difference confined to the tail mask never vanishes.
+
+\paragraph{Extracting one affine witness.}
+For a completely extracted vector $i$, let $z_{i,x}$ be its expanded leaf streams, $c_0=0$, and $c_i$ its transmitted correction. Define
+\[
+ u_i=\bigoplus_x z_{i,x}\oplus c_i,\qquad
+ V_{i,t}=\bigoplus_{x:x_t=1}z_{i,x}.
+\]
+The receiver's XOR and Gray-code conversion gives
+$Q_{i,t}=V_{i,t}\oplus\delta_{i,t}u_i$.
+Before stage 4, extract the declared column values $D_{i,t}$ from stage 9 and read the transmitted check $\widehat u$. An accepting continuation must satisfy
+\[
+ D_{i,t}=\mathcal L_\chi(V_{i,t})\oplus
+ \delta_{i,t}\bigl(\mathcal L_\chi(u_i)\oplus\widehat u\bigr).
+\]
+Call a complete vector an anchor when $\mathcal L_\chi(u_i)=\widehat u$. The $u_i$ are fixed before $\chi$; except with probability $\binom{22}{2}((n-1)2^{-256}+2^{-272})$ per fresh challenge, equal check values among complete vectors imply equal relevant row strings.
+
+If an anchor exists, choose its $u$. Every complete nonanchor block has its entire $\delta_i$ fixed by the displayed equation, or cannot accept. For its required value $\beta_i$, replace its extractor matrix by $V^*_{i,t}=V_{i,t}\oplus\beta_{i,t}(u_i\oplus u)$. An incomplete vector with two missing leaves cannot open; with exactly one missing leaf $h$, acceptance fixes $\delta_i=h$. Fill that missing \emph{row string} with $u\oplus c_i\oplus\bigoplus_{x\ne h}z_{i,x}$ for the extractor's algebra only. Its coefficient in the receiver computation is zero, so no PRG preimage is needed. These operations produce one $V^*,u$, fixed before stage 4, such that every accepting continuation satisfies $Q=V^*\oplus u\Delta$. The witness correction $d$ then gives the Boolean witness $w=d\oplus u_W$.
+
+If no anchor exists, every complete block fixes its challenge bits and every incomplete block fixes its hidden index. Including the six required zeros, at most one 256-bit final challenge can accept. This costs at most $q_5/2^{256}$ over raw fresh final-stage queries. It is not a probability conditioned on successful grinding.
+
+\paragraph{Fresh chains after simulation.}
+The public simulator in Appendix~\ref{app:public-simulation} programs only stage 5 on its own complete statement chains. Stages 1, 3, 4 and 6--9 remain unprogrammed. For a fixed kind and profile, the stage-1 encoding of the complete public statement and context is injective; collisions in application-level context digests are accounted for separately. Their chained outputs have lengths $b_1=512$, $b_3=1344$, and $b_4=832$ for G or $1664$ for Q. Collisions and a dependent input guessed before its earlier preimage is queried have combined probability at most
+\begin{align*}
+ \eps_{\rm chain}\le{}&
+ \frac{\binom{q_1}{2}+q_1q_3}{2^{512}}+
+ \frac{\binom{q_3}{2}+q_3q_4}{2^{1344}}+
+ \frac{\binom{q_4}{2}+q_4q_5}{2^{b_4}}.
+\end{align*}
+Outside this event, a final proof determines a unique chronological chain. Sharing a programmed stage-5 input forces the same stage-4 output and preimage, then the same stage-3 preimage, and finally the same statement digest and public statement. A fresh statement therefore cannot use a simulated programming point.
+
+\begin{theorem}[Classical single-output extraction]\label{thm:concrete-wse}
+For the stated profile and the matched controller of Appendix~\ref{app:public-simulation}, there is a straight-line extractor for a fresh accepted full statement with errors bounded by
+\begin{align*}
+ e_Q\le{}&\eps_{\rm VC}+\eps_9+\eps_{\rm chain}
+ +231q_3(57\cdot2^{-256}+2^{-272})\\
+ &+q_4(M+F)2^{-256}+5q_5\,2^{-256},\\
+ e_G\le{}&\eps_{\rm VC}+\eps_9+\eps_{\rm chain}
+ +231q_3(55\cdot2^{-256}+2^{-272})\\
+ &+3688q_4\,2^{-256}+3q_5\,2^{-256}.
+\end{align*}
+Each bound is capped at one. Parameter-digest and outer application collisions are accounted for separately. The quantities $M,F$ are those of Lemma~\ref{lem:batching}.
+\end{theorem}
+\begin{proof}
+Verify the final object and follow its logged chain. Use the pre-stage-3 snapshot for leaf extraction and the pre-stage-4 snapshot for the check values and affine normalization. If an anchor exists, test $w=d\oplus u_W$ against the encoded relation and output its key, and its selector index for Q. This is polynomial-time in the query count, configured vector size and row length.
+
+Outside the digest and ordering events, an invalid extracted witness survives only a VOLE-check collision, a residual batching erasure, or a root of the final polynomial. The first costs the stated pairwise term. Lemma~\ref{lem:batching} bounds the second. The final polynomial has degree four for Q or two for G, contributing $4q_5/2^{256}$ or $2q_5/2^{256}$. Adding the no-anchor event gives the displayed final coefficients. A fresh statement uses an unprogrammed final point by the chain argument, so the same bounds hold after adaptive simulation queries. Only the final selected witness is returned.
+\end{proof}
+

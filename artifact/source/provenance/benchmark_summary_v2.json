@@ -1,0 +1,688 @@
+{
+  "schema": "claris-ordinary-benchmark-v2",
+  "date": "2026-10-02",
+  "started_at": "2026-10-02T18:52:07.570716+08:00",
+  "host": "macOS-15.3-arm64-arm-64bit-Mach-O",
+  "compiler": "Apple clang version 16.0.0 (clang-1600.0.26.3)\nTarget: arm64-apple-darwin24.3.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "flags": [
+    "-arch",
+    "x86_64",
+    "-O2",
+    "-march=x86-64",
+    "-mavx2",
+    "-maes",
+    "-mpclmul",
+    "-DNDEBUG",
+    "-D_bswap64=__builtin_bswap64",
+    "-std=c11",
+    "-Wno-ignored-attributes",
+    "-Wno-unused-value",
+    "-Wno-incompatible-pointer-types-discards-qualifiers"
+  ],
+  "execution_target": "x86_64 AVX2 AES PCLMUL",
+  "transcript_profile": "CLARIS-Q-v2-G-v1",
+  "repeats": 30,
+  "warmups_per_cell": 3,
+  "scope": {
+    "ordinary": "in-memory witness expansion, random seed, proving/retry and verification; excludes public request construction, bridge setup, file I/O, outer worker-buffer allocation and IPC",
+    "report": "fresh message/nonce, context and tag derivation, witness expansion and report proving; verification includes registry/public-report checks",
+    "original_set": "separate in-memory validation of the selected original reports and registry",
+    "full_verify": "not measured as a single operation; no observed end-to-end latency claim",
+    "ordering": "methods measured in consecutive batches; anchor/bridge order alternates with selection size",
+    "dataset": "same public report corpus and honest registry for all certificate cells within each ring size; fresh proof randomness per sample; one bridge tuple per cell"
+  },
+  "fresh_public_verification": [
+    {
+      "ring_size": 64,
+      "all_reports_and_statements_reconstructed": true,
+      "secret_keys_loaded": false,
+      "elapsed_workload_seconds": 687.4057541670045
+    },
+    {
+      "ring_size": 1024,
+      "all_reports_and_statements_reconstructed": true,
+      "secret_keys_loaded": false,
+      "elapsed_workload_seconds": 1047.1458019579877
+    }
+  ],
+  "build_manifest_sha256": "14bc2fc0a05f78dc65521331e6fa153fd955622cca0e1b6010d1a95b0a35f99d",
+  "cpu": "arm",
+  "report_rows": [
+    {
+      "ring_size": 64,
+      "proof_bytes": 50660,
+      "canonical_payload_bytes_excluding_manifest": 50852,
+      "generate_ms": {
+        "n": 30,
+        "median": 316.88800000000003,
+        "mean": 319.1219,
+        "min": 311.719,
+        "max": 353.598,
+        "sample_stdev": 7.9759356054796875,
+        "p25": 315.48225,
+        "p75": 321.27525,
+        "p95": 328.75655
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 380.5135,
+        "mean": 380.9579,
+        "min": 373.613,
+        "max": 390.961,
+        "sample_stdev": 4.097405834898722,
+        "p25": 378.264,
+        "p75": 383.62425,
+        "p95": 387.66245
+      }
+    },
+    {
+      "ring_size": 1024,
+      "proof_bytes": 50792,
+      "canonical_payload_bytes_excluding_manifest": 50984,
+      "generate_ms": {
+        "n": 30,
+        "median": 895.761,
+        "mean": 890.9075666666666,
+        "min": 838.535,
+        "max": 997.468,
+        "sample_stdev": 35.88411489271169,
+        "p25": 865.64675,
+        "p75": 909.86725,
+        "p95": 934.7315
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 825.53,
+        "mean": 836.8444333333333,
+        "min": 779.102,
+        "max": 1017.863,
+        "sample_stdev": 53.29305707169675,
+        "p25": 811.0805,
+        "p75": 843.5852500000001,
+        "p95": 951.6148999999996
+      }
+    }
+  ],
+  "certificate_rows": [
+    {
+      "ring_size": 64,
+      "method": "claim",
+      "selected_count": 1,
+      "proof_count": 1,
+      "proof_bytes": 49208,
+      "generate_ms": {
+        "n": 30,
+        "median": 275.3515,
+        "mean": 276.0810666666667,
+        "min": 271.159,
+        "max": 284.145,
+        "sample_stdev": 4.19564801565436,
+        "p25": 272.2195,
+        "p75": 280.03775,
+        "p95": 282.75645
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 353.9225,
+        "mean": 354.0353666666667,
+        "min": 347.264,
+        "max": 365.974,
+        "sample_stdev": 4.827633142386781,
+        "p25": 349.43725,
+        "p75": 356.98775,
+        "p95": 362.0935
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 377.3925,
+        "mean": 378.8316,
+        "min": 372.233,
+        "max": 401.986,
+        "sample_stdev": 6.403866189991036,
+        "p25": 373.63875,
+        "p75": 382.2375,
+        "p95": 388.5411
+      },
+      "max_rss_bytes": 79720448
+    },
+    {
+      "ring_size": 64,
+      "method": "anchor",
+      "selected_count": 2,
+      "proof_count": 1,
+      "proof_bytes": 49208,
+      "generate_ms": {
+        "n": 30,
+        "median": 277.6995,
+        "mean": 277.9618,
+        "min": 271.122,
+        "max": 286.91,
+        "sample_stdev": 4.682094479743163,
+        "p25": 273.74199999999996,
+        "p75": 281.5715,
+        "p95": 285.13475
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 355.9385,
+        "mean": 355.3983333333333,
+        "min": 347.904,
+        "max": 364.13,
+        "sample_stdev": 4.9796945435565085,
+        "p25": 350.3625,
+        "p75": 360.02049999999997,
+        "p95": 361.58575
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 762.0699999999999,
+        "mean": 763.4663666666667,
+        "min": 748.107,
+        "max": 788.754,
+        "sample_stdev": 11.23886964951772,
+        "p25": 755.7090000000001,
+        "p75": 767.31,
+        "p95": 784.77705
+      },
+      "max_rss_bytes": 87506944
+    },
+    {
+      "ring_size": 64,
+      "method": "bridge",
+      "selected_count": 2,
+      "proof_count": 2,
+      "proof_bytes": 98416,
+      "generate_ms": {
+        "n": 30,
+        "median": 552.6959999999999,
+        "mean": 561.3704666666666,
+        "min": 542.319,
+        "max": 731.878,
+        "sample_stdev": 33.77435586024866,
+        "p25": 548.424,
+        "p75": 562.64475,
+        "p95": 580.25015
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 707.3489999999999,
+        "mean": 711.4555,
+        "min": 696.58,
+        "max": 801.475,
+        "sample_stdev": 18.64277982777506,
+        "p25": 703.81525,
+        "p75": 711.97075,
+        "p95": 724.49505
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 761.921,
+        "mean": 762.2226333333333,
+        "min": 748.126,
+        "max": 781.05,
+        "sample_stdev": 10.647527993772124,
+        "p25": 752.4304999999999,
+        "p75": 772.1279999999999,
+        "p95": 777.3008
+      },
+      "max_rss_bytes": 87302144
+    },
+    {
+      "ring_size": 64,
+      "method": "anchor",
+      "selected_count": 3,
+      "proof_count": 2,
+      "proof_bytes": 98416,
+      "generate_ms": {
+        "n": 30,
+        "median": 553.1524999999999,
+        "mean": 553.1378666666667,
+        "min": 542.503,
+        "max": 569.209,
+        "sample_stdev": 8.276604445907928,
+        "p25": 545.73,
+        "p75": 558.56525,
+        "p95": 567.4118
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 704.6925,
+        "mean": 706.0636666666667,
+        "min": 697.268,
+        "max": 721.002,
+        "sample_stdev": 6.664246545783583,
+        "p25": 700.643,
+        "p75": 710.7774999999999,
+        "p95": 716.88315
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 1144.6325000000002,
+        "mean": 1146.5321333333334,
+        "min": 1124.385,
+        "max": 1176.783,
+        "sample_stdev": 14.305054669069152,
+        "p25": 1137.55775,
+        "p75": 1149.9747499999999,
+        "p95": 1171.0009
+      },
+      "max_rss_bytes": 91721728
+    },
+    {
+      "ring_size": 64,
+      "method": "bridge",
+      "selected_count": 3,
+      "proof_count": 3,
+      "proof_bytes": 147624,
+      "generate_ms": {
+        "n": 30,
+        "median": 832.1,
+        "mean": 836.0954666666667,
+        "min": 815.556,
+        "max": 880.947,
+        "sample_stdev": 15.847362231795776,
+        "p25": 823.478,
+        "p75": 846.0595,
+        "p95": 862.2285499999999
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 1070.1055000000001,
+        "mean": 1071.5600333333334,
+        "min": 1045.064,
+        "max": 1129.289,
+        "sample_stdev": 20.172174242964154,
+        "p25": 1055.8765,
+        "p75": 1076.281,
+        "p95": 1110.42795
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 1145.246,
+        "mean": 1149.0928333333334,
+        "min": 1122.124,
+        "max": 1236.479,
+        "sample_stdev": 25.037430426275286,
+        "p25": 1137.368,
+        "p75": 1153.2775,
+        "p95": 1198.1802999999998
+      },
+      "max_rss_bytes": 83890176
+    },
+    {
+      "ring_size": 64,
+      "method": "anchor",
+      "selected_count": 5,
+      "proof_count": 4,
+      "proof_bytes": 196832,
+      "generate_ms": {
+        "n": 30,
+        "median": 1120.8,
+        "mean": 1129.0832,
+        "min": 1088.399,
+        "max": 1326.116,
+        "sample_stdev": 43.73460642636408,
+        "p25": 1102.9515,
+        "p75": 1141.0147499999998,
+        "p95": 1176.6329
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 1438.103,
+        "mean": 1438.5516333333333,
+        "min": 1399.608,
+        "max": 1478.212,
+        "sample_stdev": 22.826581257284293,
+        "p25": 1420.9775,
+        "p75": 1459.223,
+        "p95": 1471.08115
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 1913.7445,
+        "mean": 1932.4285666666667,
+        "min": 1874.41,
+        "max": 2212.059,
+        "sample_stdev": 62.40117011871702,
+        "p25": 1903.338,
+        "p75": 1929.4160000000002,
+        "p95": 2008.49845
+      },
+      "max_rss_bytes": 80437248
+    },
+    {
+      "ring_size": 64,
+      "method": "bridge",
+      "selected_count": 5,
+      "proof_count": 5,
+      "proof_bytes": 246040,
+      "generate_ms": {
+        "n": 30,
+        "median": 1400.5479999999998,
+        "mean": 1398.532,
+        "min": 1358.463,
+        "max": 1454.6,
+        "sample_stdev": 22.843413749353182,
+        "p25": 1379.1,
+        "p75": 1407.9295,
+        "p95": 1438.1657
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 1784.1689999999999,
+        "mean": 1787.4823333333334,
+        "min": 1750.811,
+        "max": 1862.774,
+        "sample_stdev": 27.60291109127158,
+        "p25": 1768.00175,
+        "p75": 1803.86925,
+        "p95": 1833.195
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 1921.871,
+        "mean": 1981.9382333333333,
+        "min": 1878.01,
+        "max": 2669.559,
+        "sample_stdev": 184.30733654390758,
+        "p25": 1897.0145,
+        "p75": 1967.367,
+        "p95": 2373.155249999999
+      },
+      "max_rss_bytes": 84459520
+    },
+    {
+      "ring_size": 1024,
+      "method": "claim",
+      "selected_count": 1,
+      "proof_count": 1,
+      "proof_bytes": 49208,
+      "generate_ms": {
+        "n": 30,
+        "median": 283.555,
+        "mean": 287.58253333333334,
+        "min": 270.73,
+        "max": 321.839,
+        "sample_stdev": 13.61886332472249,
+        "p25": 276.81075,
+        "p75": 296.39525000000003,
+        "p95": 312.59499999999997
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 364.3885,
+        "mean": 371.3296,
+        "min": 347.44,
+        "max": 483.921,
+        "sample_stdev": 27.192117953554114,
+        "p25": 355.2655,
+        "p75": 375.844,
+        "p95": 412.5993999999999
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 825.0455,
+        "mean": 824.4117333333334,
+        "min": 777.655,
+        "max": 853.759,
+        "sample_stdev": 21.39046961476605,
+        "p25": 808.0405000000001,
+        "p75": 843.73925,
+        "p95": 852.30175
+      },
+      "max_rss_bytes": 84279296
+    },
+    {
+      "ring_size": 1024,
+      "method": "anchor",
+      "selected_count": 2,
+      "proof_count": 1,
+      "proof_bytes": 49208,
+      "generate_ms": {
+        "n": 30,
+        "median": 295.528,
+        "mean": 297.84546666666665,
+        "min": 272.538,
+        "max": 376.177,
+        "sample_stdev": 19.252166808159426,
+        "p25": 285.93775,
+        "p75": 304.55174999999997,
+        "p95": 320.8377
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 376.3665,
+        "mean": 376.5553,
+        "min": 352.805,
+        "max": 418.888,
+        "sample_stdev": 14.351973643322395,
+        "p25": 365.06875,
+        "p75": 385.19275000000005,
+        "p95": 393.79455
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 1662.517,
+        "mean": 1677.6905333333334,
+        "min": 1562.691,
+        "max": 1944.013,
+        "sample_stdev": 75.05536623500856,
+        "p25": 1627.7375,
+        "p75": 1697.4392500000001,
+        "p95": 1809.1334
+      },
+      "max_rss_bytes": 70340608
+    },
+    {
+      "ring_size": 1024,
+      "method": "bridge",
+      "selected_count": 2,
+      "proof_count": 2,
+      "proof_bytes": 98416,
+      "generate_ms": {
+        "n": 30,
+        "median": 572.1220000000001,
+        "mean": 579.0302333333333,
+        "min": 547.452,
+        "max": 667.77,
+        "sample_stdev": 28.662689421523456,
+        "p25": 553.9784999999999,
+        "p75": 592.73,
+        "p95": 626.9711
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 738.8405,
+        "mean": 740.5048,
+        "min": 696.958,
+        "max": 873.466,
+        "sample_stdev": 34.75202142808287,
+        "p25": 717.06875,
+        "p75": 753.145,
+        "p95": 787.04245
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 1638.4,
+        "mean": 1635.7198333333333,
+        "min": 1579.155,
+        "max": 1717.82,
+        "sample_stdev": 36.352146778217346,
+        "p25": 1608.85275,
+        "p75": 1653.761,
+        "p95": 1699.0655
+      },
+      "max_rss_bytes": 82890752
+    },
+    {
+      "ring_size": 1024,
+      "method": "anchor",
+      "selected_count": 3,
+      "proof_count": 2,
+      "proof_bytes": 98416,
+      "generate_ms": {
+        "n": 30,
+        "median": 566.7055,
+        "mean": 570.6804666666667,
+        "min": 541.505,
+        "max": 600.781,
+        "sample_stdev": 16.92961235422619,
+        "p25": 556.1225,
+        "p75": 583.02725,
+        "p95": 595.7004000000001
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 719.3145,
+        "mean": 722.6088,
+        "min": 695.404,
+        "max": 753.92,
+        "sample_stdev": 16.104098530369907,
+        "p25": 709.574,
+        "p75": 734.6055,
+        "p95": 751.7310500000001
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 2479.985,
+        "mean": 2506.900833333333,
+        "min": 2387.578,
+        "max": 3059.821,
+        "sample_stdev": 121.72868275774933,
+        "p25": 2433.38875,
+        "p75": 2543.20075,
+        "p95": 2623.9471000000003
+      },
+      "max_rss_bytes": 85995520
+    },
+    {
+      "ring_size": 1024,
+      "method": "bridge",
+      "selected_count": 3,
+      "proof_count": 3,
+      "proof_bytes": 147624,
+      "generate_ms": {
+        "n": 30,
+        "median": 854.9525000000001,
+        "mean": 861.3511,
+        "min": 812.1,
+        "max": 947.451,
+        "sample_stdev": 31.344386122612903,
+        "p25": 843.157,
+        "p75": 888.1602499999999,
+        "p95": 896.18165
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 1102.0835,
+        "mean": 1113.4193666666667,
+        "min": 1045.49,
+        "max": 1307.97,
+        "sample_stdev": 48.13483078953101,
+        "p25": 1086.885,
+        "p75": 1121.0880000000002,
+        "p95": 1178.95265
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 2483.3815,
+        "mean": 2499.5235,
+        "min": 2355.428,
+        "max": 2727.146,
+        "sample_stdev": 89.35655085753466,
+        "p25": 2448.89975,
+        "p75": 2540.0625,
+        "p95": 2686.09735
+      },
+      "max_rss_bytes": 78397440
+    },
+    {
+      "ring_size": 1024,
+      "method": "anchor",
+      "selected_count": 5,
+      "proof_count": 4,
+      "proof_bytes": 196832,
+      "generate_ms": {
+        "n": 30,
+        "median": 1105.3705,
+        "mean": 1108.6037,
+        "min": 1091.506,
+        "max": 1148.636,
+        "sample_stdev": 14.270441281024636,
+        "p25": 1098.491,
+        "p75": 1111.71,
+        "p95": 1135.5910999999999
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 1412.8405,
+        "mean": 1414.0478333333333,
+        "min": 1401.828,
+        "max": 1440.27,
+        "sample_stdev": 9.011524671347175,
+        "p25": 1408.5585,
+        "p75": 1416.6689999999999,
+        "p95": 1432.88435
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 3998.871,
+        "mean": 4044.8697,
+        "min": 3950.297,
+        "max": 4472.456,
+        "sample_stdev": 130.83977018400577,
+        "p25": 3975.66525,
+        "p75": 4029.19825,
+        "p95": 4314.6874
+      },
+      "max_rss_bytes": 81879040
+    },
+    {
+      "ring_size": 1024,
+      "method": "bridge",
+      "selected_count": 5,
+      "proof_count": 5,
+      "proof_bytes": 246040,
+      "generate_ms": {
+        "n": 30,
+        "median": 1420.7435,
+        "mean": 1428.7562333333333,
+        "min": 1372.712,
+        "max": 1526.921,
+        "sample_stdev": 37.76711587290551,
+        "p25": 1402.0352500000001,
+        "p75": 1452.22275,
+        "p95": 1503.94095
+      },
+      "verify_ms": {
+        "n": 30,
+        "median": 1810.5430000000001,
+        "mean": 1821.6438666666666,
+        "min": 1742.284,
+        "max": 2093.006,
+        "sample_stdev": 63.342802441587786,
+        "p25": 1783.06025,
+        "p75": 1844.809,
+        "p95": 1882.66375
+      },
+      "original_set_ms": {
+        "n": 30,
+        "median": 4149.3915,
+        "mean": 4168.283066666667,
+        "min": 3990.697,
+        "max": 4596.8,
+        "sample_stdev": 127.54099203405113,
+        "p25": 4086.941,
+        "p75": 4212.4775,
+        "p95": 4388.8637
+      },
+      "max_rss_bytes": 91762688
+    }
+  ],
+  "raw_result_archive": {
+    "file": "CLARIS_benchmark_evidence_v2_final_2026-10-02.zip",
+    "sha256": "310365a31ee53d89624a1e70b8f0a36dbd09921c63c8a49cd7e60829f479b7ca",
+    "contains_public_fixtures": true,
+    "contains_private_keys": false
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "claris-full-matrix-publication-v1",
+  "ring_sizes": [
+    16,
+    64,
+    256,
+    1024
+  ],
+  "selected_counts": [
+    1,
+    2,
+    3,
+    5,
+    10,
+    20
+  ],
+  "cells": 44,
+  "samples_per_cell": 30,
+  "warmups_per_cell": 3,
+  "figures": [
+    "anchor_vs_bridge.png",
+    "claim_generation_verification.png",
+    "evidence_package_vs_s.png",
+    "link_generation_vs_s.png",
+    "link_verification_vs_s.png",
+    "peak_rss_vs_s.png",
+    "primitive_operations.png",
+    "proof_size_vs_s.png",
+    "report_generation_vs_N.png",
+    "report_verification_vs_N.png"
+  ],
+  "files": {
+    "ring": "results/processed/full_matrix_ring_scalability.csv",
+    "certificate": "results/processed/full_matrix_certificate_scalability.csv",
+    "ablation": "results/processed/full_matrix_anchor_bridge_ablation.csv",
+    "communication": "results/processed/full_matrix_communication_overhead.csv",
+    "timing_samples": "results/raw/full_matrix_timings.csv",
+    "originals": "results/raw/full_matrix_originals.csv",
+    "environment": "results/metadata/full_matrix_environment.json"
+  }
+}

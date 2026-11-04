@@ -1,0 +1,468 @@
+Classical public simulation for the actual CLARIS Q-v2 / G-v1 verifiers
+Source-level derivation, 2026-10-02
+
+Status and scope
+================
+This note specifies an online, witness-free, programmable-random-oracle
+simulator which accepts every well-formed public statement, including a false
+one. The algorithm uses the actual verifier arithmetic, preserves the actual
+compressed opening format, and programs ONLY stage 5. Its acceptance proof is
+unconditional given successful sampling and fresh programming points. Its
+distributional comparison on true statements is proved below in a punctured
+stream hybrid, with explicit primitive hiding and oracle-programming terms.
+This is a classical-ROM argument, not a QROM argument or a real forgery.
+No simulator code was run, and this note does not report a simulation test.
+
+G is the unmodified ordinary eight-AES proof in the namespace-v1 source;
+Q is the dimension-two tagged-ring proof after the v2 independent-batching
+and selector corrections. No G algorithm change is proposed here. Source
+copies reviewed: /tmp/claris-source-v2-20261002/ordinary and ring_n64; the
+ring_n1024 source has the same proof primitives at its larger ring size.
+
+1. Exact public interface and challenge predicate
+================================================
+The input x comprises the entire parsed public circuit statement, the complete
+message/context byte string, proof kind, and parameter/source profile. The
+simulator first performs the same well-formedness checks as the proof API. It
+does not require a witness, a candidate signing key, or access to a candidate
+PRF. Every SHAKE input is routed by the exact profile/kind/stage prefix; inputs
+outside those namespaces are passed to a residual ordinary SHAKE oracle.
+Variable-length SHAKE queries share one consistent output stream per complete
+input, rather than separate independent values for different output lengths.
+
+lambda=256, tau=22. The 250 used bits of the final challenge Delta consist of
+eight 12-bit blocks and fourteen 11-bit blocks. The last six bits must be zero.
+The compressed heap has L=61440 leaves and 2L-1 nodes. For a challenge Delta,
+let A(Delta) be the union of the root-to-punctured-leaf paths (including both
+root and leaves), where the 22 leaves use BATCH_VEC_POS_IN_TREE. The number
+of frontier seeds is
+    K(Delta)=|A(Delta)|-2*tau+1=|A(Delta)|-43.
+Define Good(Delta) iff the high six bits are zero and K(Delta)<=245. The
+predicate depends only on Delta and the public heap topology, not on seeds,
+leaf hashes, the statement, or any witness. This is exactly the success test
+in force_vector_open and batch_vector_open.
+
+Let p_good=|{Delta in {0,1}^256: Good(Delta)}|/2^256. Use a fixed trial cap
+T<=2^32 divisible by four. In particular T=2^20 is sufficient for the concrete
+profile by the certified lower bound in Section 6. Runtime is bounded even
+when a statement is false; there is no unbounded rejection-sampling claim.
+
+2. Explicit simulator Sim_T(x)
+=============================
+All steps are local to an atomic classical proof-service call. A shared oracle
+controller permits the simulator to inspect whether an input is assigned and
+to assign a previously unassigned output. It cannot overwrite assigned values.
+
+(a) Sample independent uniform 256-bit trial outputs Delta_0,... in batches
+    of four. Stop at the first batch containing a Good value, retain the
+    entire batch, and let c be the first successful index. If none of the
+    first T trials succeeds, return bottom. Keep all rejected earlier values
+    and the values after c in its final four-lane batch.
+
+(b) Sample a uniform 256-bit root seed and an independent uniform 128-bit IV.
+    Run genuine batch_vector_commit and construct its ordinary opening for
+    Delta_c. Compute the same stage-7/stage-8 commitment digest as the verifier.
+    Equivalently, vole_commit may be used as a helper if its genuine sender
+    corrections and u,v are discarded. The outgoing C below must not be
+    replaced by those genuine sender corrections.
+
+(c) Sample C uniformly at the exact transmitted correction length: 21 row
+    strings of VOLE_ROWS/8 bytes for G, or the tagged-ring equivalent for Q.
+    Do not serialize extra alignment/padding bytes. With the genuine opening,
+    C, IV and expanded challenge bits, run the actual vole_reconstruct (Q:
+    vole_reconstruct_for_tagged_ring) to obtain receiver matrix Q and the
+    commitment digest. The reconstruction succeeds because the opening is
+    genuine and Good; it does not require C to have been obtained from the
+    hidden sender streams.
+
+(d) Compute mu with the actual stage-1 statement/context hash. Query stage 3
+    normally on its exact mu, commitment digest, C, IV and suffix to obtain
+    chi_1. All SHAKE stages in this step are ordinary unprogrammed queries.
+
+(e) Sample h uniformly from {0,1}^272. It is EXACTLY 34 bytes, the value of
+    VOLE_CHECK_PROOF_BYTES; it is not a pair of full 256-bit field elements.
+    Run actual vole_check_receiver(Q,Delta_c,chi_1,h,...) and its ordinary
+    stage-9 hash to obtain d_9. Sample the witness correction d uniformly at
+    its exact witness-bit length. Query stage 4 normally on chi_1,h,d_9,d and
+    its suffix, yielding chi_2. Its length is 104 bytes for G and 208 bytes
+    for Q-v2; all 208 Q bytes are included in the final hash.
+
+(f) Sample one independent uniform field element p_1 for G, or three
+    independent uniform field elements p_1,p_2,p_3 for Q (32 bytes each).
+    Apply d to Q, transpose using the public verifier's code, and run the
+    corresponding QuickSilver initialization, OWF-constraint verifier and
+    quicksilver_verify / quicksilver_verify_or. Obtain the verifier's
+    32-byte qs_check. This is a public deterministic computation on x and
+    the sampled values, including for false circuit statements.
+
+(g) Form the exact stage-5 prefix:
+      G: chi_2 || p_1 || qs_check;
+      Q: chi_2 || qs_check || p_1 || p_2 || p_3.
+    For every retained trial j, append little-endian uint32(j) and byte 0x02,
+    together with the actual profile/kind/stage prefix. First check that ALL
+    these complete inputs are unassigned. If any is assigned, return bottom
+    without changing any oracle output. Otherwise atomically assign its
+    first 32 output bytes to Delta_j. Longer SHAKE outputs retain fresh,
+    consistent extensions. Program the entire last four-lane batch too.
+
+(h) Serialize C,h,d,the p fields,the compressed opening,Delta_c,IV,c in the
+    actual signature layout and return it. Every namespace other than this
+    proof's stage 5 is untouched. In particular stages 6,7,8,9 are queried
+    honestly; neither hidden leaf hashes nor the column-check hash is ever
+    programmed.
+
+3. Acceptance, online use, and prior-query collisions
+====================================================
+Proposition 1 (public extension). On every well-formed x, conditional on
+neither abort in (a) nor (g), Sim_T(x) is accepted by the corresponding actual
+public verifier. The simulator is defined even when no witness exists.
+
+Proof. The verifier accepts the genuine compressed opening because Good
+holds. Its reconstruction on C is exactly (c), hence it recomputes the same
+commitment digest. Its stage-1/3/9/4 values coincide with (d)-(e). The witness
+correction and public circuit arithmetic are exactly (f), so it reconstructs
+the same qs_check. The resulting stage-5 input is the input programmed at c,
+whose output equals the serialized Delta_c. These are all of the verifier's
+checks. No assertion about the truth of x, or hidden sender consistency, was
+used. Only the simulator's RO programming capability permits this fact.
+
+The simulator is public and online in the classical proof-service model.
+It shares the single oracle controller with Q, G, and the outer protocol;
+it does not maintain independent incompatible copies of raw SHAKE. Stage-5
+programming is tied to its own complete statement chain. This is the interface
+needed by the freshness argument in commitment_vole_extraction.txt. Internal
+simulator queries can be logged for an extractor, but the privacy adversary
+is not given private simulator/extractor logs or the root seed.
+
+For the programming abort, let q_5^- be the number of already assigned
+complete stage-5 inputs when a simulation call begins. Before step (f), all
+such input strings are fixed. Step (f)'s p fields are independent uniform
+elements, and the subsequent QuickSilver arithmetic does not query stage 5.
+For any fixed earlier input to collide, its fixed proof-field substring must
+equal the newly sampled p fields. Consequently
+    Pr[programming abort | prior view] <= q_5^- / 2^(t*256),
+where t=1 for G and t=3 for Q. It is unnecessary to multiply this by T: each
+earlier input has only one fixed p substring and counter. The bound includes
+adversarial raw SHAKE queries and earlier simulated points. Wrong-profile,
+wrong-kind or wrong-format inputs cannot match. For a sequence of S adaptive
+calls, sum the corresponding per-call bounds. A conservative statistical
+comparison may charge this bad-event bound on both sides of a coupling.
+
+4. Exact distributional argument in the punctured-stream hybrid
+=============================================================
+Fix any accepted Delta and the public opening material for that Delta. The
+primitive hybrid replaces the one hidden expanded VOLE row stream in each
+of the 22 logical vectors by an independent uniform row string. Only relevant
+rows are needed: witness rows, t*256 QuickSilver mask rows, and a 272-bit check
+mask tail. Opened streams and the entire visible tree/commitment remain as
+in the real experiment. Section 5 defines its computational error precisely.
+
+For logical vector i, let U_i be the XOR of all expanded streams, including
+its uniform hidden stream. With U=U_0, the transmitted corrections are
+    C_i=U_0 xor U_i, i=1,...,21.
+The map (U_0,...,U_21) -> (U,C_1,...,C_21) is an invertible binary linear map.
+Hence C is uniform, and conditional on opened streams and C, U remains
+uniform over all relevant rows. Receiver reconstruction determines Q from
+opened streams,C,Delta, and the sender matrix satisfies
+    Q=V xor U*Delta.
+Changing U by a common row perturbation e changes V by e*Delta and preserves
+C and Q. This is why the simulator may choose C independently in step (c).
+
+Split U=(U_W,U_M,U_T), for witness, QuickSilver masks, and check-mask tail.
+For fixed chi_1, the transmitted VOLE check proof has the exact form
+    h=L_chi_1(U_W,U_M) xor U_T,
+where L_chi_1 is the first 272 bits of the mapped linear hashes in
+vole_check_both, and U_T is an independent uniform 272-bit pad. Thus h is
+uniform and independent of U_W,U_M, even after conditioning on C and Q.
+The per-column sender and receiver check strings agree because
+    L(V_j) xor V_T,j
+      = L(Q_j) xor Q_T,j xor Delta_j*h.
+Only these 34-byte strings are fed to stage 9. The remaining bytes of the
+temporary pair of field elements are not transmitted or hashed. Therefore
+the actual stage-9 digest is exactly the simulator's recomputed digest.
+
+For a fixed genuine witness w, the correction d=w xor U_W is uniform and
+independent of h. Conditional on C,Q,h,d and the resulting unprogrammed
+chi_2, the t fields of U_M remain uniform; U_T compensates for any change
+in U_M so that h stays fixed. Conditioning on d fixes U_W, and therefore
+the unmasked constraint coefficients depend on the witness and receiver
+view, not on the independent mask fields U_M.
+
+For G, let B_0,B_1 denote the aggregated, unmasked honest polynomial's
+constant and linear coefficients. Let u_0 be the extra field of U_M and
+q_0 the corresponding receiver-mask field, with v_0=q_0+Delta*u_0.
+The proof p_1=B_1+u_0 is uniform. The prover check B_0+v_0 equals the check
+computed by the public verifier from p_1 because the degree-two residual
+vanishes for a true witness. This holds for every fixed Delta, including 0.
+
+For Q, dimension two leaves degree at most four and uses three mask fields.
+Write u_0,u_1,u_2 for the mask fields and q_i=v_i+Delta*u_i for the public
+receiver masks. The mask polynomial added by quicksilver_prove_or is
+    v_0 +(u_0+v_1)X +(u_1+v_2)X^2 +u_2 X^3.
+If B_0,...,B_3 are the unmasked lower coefficients, then
+    p_3=B_3+u_2,
+    p_2=B_2+u_1+q_2+Delta*u_2,
+    p_1=B_1+u_0+q_1+Delta*u_1.
+This map from (u_2,u_1,u_0) to (p_3,p_2,p_1) is triangular with diagonal 1.
+It is a bijection for EVERY Delta; no inversion or nonzero-Delta condition
+is required. Thus all three p fields are independent uniform field elements.
+The constant coefficient B_0+v_0 is exactly the check recomputed by the
+verifier since the genuine degree-four residual is zero. The independent
+inner/outer challenge slices of Q-v2 change the B_i but not this argument.
+
+Therefore, for a true statement and fixed accepted Delta, the ideal-hybrid
+public transcript is exactly distributed as steps (b)-(f) of Sim_T(x).
+In particular the comparison uses the real receiver's full arithmetic, not
+a simulator for a different two-challenge protocol. The simulator's algorithm
+also exists for false statements; no claim compares a nonexistent honest
+false-statement prover distribution with it.
+
+Grinding is handled without changing this distribution. In a fresh stage-5
+chain the prover's outputs are iid uniform. Since Good depends only on
+Delta, the first-success index is geometric (up to the cap), its successful
+value is uniform in Good, its earlier values are independently conditioned
+outside Good, and the unused outputs in the final batch remain uniform.
+Step (a) samples exactly this joint distribution. Sampling a Good challenge
+and always outputting counter zero would NOT be correct: the adversary can
+query the earlier counters. The simulator retains and programs them instead.
+The prior-query collision term above and the cap tail cover deviations from
+this fresh-chain coupling.
+
+An independent pre-hybrid fresh-chain bound makes the order of this argument
+explicit. After the randomized stage-2 hop, the IV is an independent uniform
+128-bit value. At the start of an atomic call let q_a^- count already assigned
+stage-a inputs. A previous stage-3 input has one fixed IV substring, hence
+the real stage-3 input is old with probability at most q_3^-/2^128. If it is
+fresh, chi_1 is uniform 1344 bits and an old stage-4 input can share its prefix
+with probability at most q_4^-/2^1344. If stage 4 is fresh, chi_2 is uniform
+b_4 bits (832 for G, 1664 for Q), so any old stage-5 input can share the new
+prefix with probability at most q_5^-/2^b_4. Thus put
+    epsilon_fresh=q_3^-/2^128+q_4^-/2^1344+q_5^-/2^b_4.
+This holds before any punctured-stream hybrid or mask-entropy argument. It
+also holds for Sim_T: it has the same uniform IV and honest stage-3/4 queries.
+The compared experiments may be truncated on this event at either endpoint,
+charging 2*epsilon_fresh. Outside it the entire real final counter chain is
+fresh and the trial outputs are independent of the prover's preceding tree
+and transcript. The tail bound does not condition on the adversary having
+chosen a favorable previous final challenge.
+
+To formalize the FS hybrid order, now re-express the true prover on fresh
+points as sampling its future iid trial outputs before generating its normal
+prefix, then lazily assigning them at that prefix. The true prefix generation
+ignores those trial values, so this is the same experiment until a previously
+assigned point is met. Abort on that event. Now choose the successful puncture
+in advance and run the stream-hiding hybrids inside this oracle controller;
+its final stage-5 addresses are computed from the resulting transcript, not
+copied from the old transcript. All programming and later oracle answers are
+efficient postprocessing in the primitive reduction. In particular one must
+not change the hidden streams while keeping an obsolete FS input/output pair
+and assert that acceptance survives automatically. The independent
+fresh-chain argument above avoids requiring an unproved min-entropy bound
+for the real AES-expanded proof fields. The uniform-p bound in Section 3 is
+an additional direct bound for the actual simulator's programming abort, not
+the premise used to select a real puncture in advance.
+
+5. Primitive hiding obligation and a conservative reduction template
+===================================================================
+Define epsilon_punc for the concrete profile as the maximum classical
+distinguishing advantage in the following selective experiment (including
+adaptive auxiliary RO access and later transcript postprocessing):
+  - an accepted Delta is selected before fresh root/IV generation;
+  - generate the actual compressed tree and opening;
+  - expose its complete public view, including the frontier seeds, hidden
+    leaf commitments, every opened leaf seed/stream, and commitment digests;
+  - give the higher-level transcript constructor either the genuine hidden
+    expanded VOLE row streams or independent uniform row streams;
+  - compare the resulting public views, with no private oracle log exposed.
+This is a primitive selective all-but-one stream-hiding game, not an assumed
+zero-knowledge property of Q/G. It has no circuit, witness or FS proof in its
+definition; later postprocessing is allowed as in a standard PRG reduction.
+
+The actual heap is one shared-root tree, so it is incorrect simply to assume
+22 independent GGM roots. A direct multipuncture hybrid works on the union
+of hidden paths: replace outputs of its marked internal nodes top-down by
+independent child seeds. A marked node's seed is never opened; a child outside
+the union is precisely a frontier seed. At the end, the 22 hidden leaf seeds
+are independent uniform values apart from ordinary collision events, while
+the exposed subtrees retain their genuine deterministic expansion. Each step
+is one secret-seed AES-CTR tree-generator PRG hybrid with public IV and the
+same auxiliary random-oracle access. There are
+    a(Delta)=|A(Delta)|-22=K(Delta)+21 <=266
+such internal nodes, even though the tree has 61440 leaves.
+
+Stage 6 maps each hidden leaf seed and IV to a 768-bit RO prefix (m,c), where
+m is a 256-bit stream key and c is a 512-bit public leaf commitment. Until
+a query hits the hidden leaf input, m is independent uniform even with c
+visible. Replace the AES-CTR stream under each of these 22 secret keys by
+uniform using 22 stream-PRG hybrids. Then undo the hidden-path tree hybrids;
+because the hidden row streams are now unused random values, this restores
+the exact genuine public tree view used by step (b).
+
+Accordingly a conservative primitive decomposition is
+    epsilon_punc <= 532*epsilon_tree +22*epsilon_stream +epsilon_hidden,
+where epsilon_tree is the maximum distinguishing advantage for one configured
+secret-seed tree expansion versus uniform, epsilon_stream is the analogous
+advantage at the configured row-stream length, and epsilon_hidden accounts
+for hidden leaf-input hits and equal hidden leaf seeds. These PRG
+advantages allow the surrounding public AES algorithm, other secret-seed
+instances and the proof's ordinary RO domains as auxiliary computation; a
+multi-instance PRG bound is obtained by the same hybrid argument.
+
+The hidden-input term can be made explicit without asserting that public
+tree nodes are independently sampled. In the fully punctured-tree hybrid,
+the hidden leaf seeds are independent uniform values, independent of the
+frontier and its public derived subtrees. To embed a stream-PRG challenge
+whose uniform key m* is unknown, keep the target leaf's stage-6 key output as
+a private opaque slot. Its public commitment c is sampled normally, and the
+supplied PRG challenge rowstream is used directly: all subsequent correction,
+mask and transcript computations need the rowstream and c, not the key m*.
+If any other call reaches this leaf-RO input, abort before answering that
+unknown slot. This private simulation device is used only in the reduction;
+the actual public simulator still queries stages 6--9 honestly.
+
+Before such a hit, the commitment c and the stream give no information about
+the independent hidden leaf seed. Adaptive unsuccessful guesses only remove
+queried candidates. For H target seeds and q_6 other leaf-oracle calls,
+    epsilon_hidden <=
+      2*[binom(H,2)/2^256 +H*q_6/(2^256-q_6)]
+when q_6<2^256, capped at one. The first term excludes coincident hidden leaf
+seeds; the second includes both preexisting and subsequent guessed inputs.
+Use H=22 for one simulation-call hybrid and count every other proof's leaf
+calls in q_6, or H=22S for a global hybrid over S calls. Exclude only these
+H private target assignments themselves from q_6; include all opened-leaf,
+adversarial and other service queries. The factor two safely covers the
+compared endpoints. Labels include the correct IV and suffix; ignoring them
+only makes this seed-only bound more conservative.
+
+No extra assertion about independent public AES-derived nodes is needed.
+In a tree-PRG embedding the unknown challenge seed occurs at an unopened
+internal node; its child output is supplied by the PRG game and is available
+for further construction. All other known-key AES evaluations proceed as
+usual. If a known key happens to equal the challenge key, the real PRG world
+is automatically consistent and the random world's difference is precisely
+covered by the PRG distinguishing advantage. The same observation handles
+a hidden stream-key coincidence with a known key. One must not add an
+unjustified birthday calculation over deterministic public tree values.
+No leaf, commitment or check oracle is programmed by the public simulator.
+
+For global bookkeeping over S proof calls, it is convenient to use exactly
+one joint punctured-stream term:
+    epsilon_punc^(S) <=532*S*epsilon_tree+22*S*epsilon_stream
+       +2*[binom(22*S,2)/2^256+(22*S)*q_6/(2^256-q_6)].
+Here q_6 excludes precisely the 22*S private target assignments, and includes
+all other leaf calls. Add this global term once, not once per proof. The
+opaque-slot reduction proves a public-view indistinguishability statement;
+it need not produce a readable private extractor log for the unknown PRG
+challenge key. The actual Sim_T uses genuine leaf keys, knows them, and
+can provide the matched extractor with its full concrete internal logs.
+
+The algebraic simulation result in Section 4 is fully proved once this
+standard PRG/hidden-input reduction is adopted for the exact configured AES
+and leaf-SHAKE generators. A publication should state these concrete
+primitive assumptions and their scope. Citing original FAEST Lemma 3 without
+the shared-root, 34-byte check and three-mask adaptation would not prove the
+same statement. Original FAEST (ePrint 2023/996), Lemma 2 supplies the selective
+all-but-one PRG-hybrid pattern; its Lemma 3 and Theorem 4 motivate the masking
+argument, but do not replace the actual-code derivation above.
+
+6. Certified finite sampling bound for the compressed opening
+============================================================
+For a heap node v, let a_i(v) be the number of leaves from logical vector i
+below v, and let L_i be 4096 or 2048. Conditional on the six required zero
+bits, the 22 punctures are independent and each is uniform in its vector.
+Thus, by indicator linearity,
+    E|A| = sum_v [1-product_i(1-a_i(v)/L_i)],
+    E K = E|A|-43.
+This formula does not assume independent node indicators. It only uses
+independent vector-index blocks of Delta. The high six bits are independent
+of these blocks, contributing exactly a factor 1/64.
+
+The parent calculation enumerates the actual BATCH_VEC_POS_IN_TREE heap and
+evaluates this sum with exact rational arithmetic. Its reported result is
+    E K =232.66171331741478... .
+The expectation formula, leaf mapping, independence, threshold conversion and
+numerical tail below were independently checked here. A separate bottom-up
+double-precision enumeration of the 122879-by-22 node counts gave
+232.66171331747046, within 5.6e-11 of the rational evaluation, and confirmed
+that the source leaf mapping covers all 61440 leaves exactly once. This
+independent enumeration ran only in the orchestration V8 environment, without
+using the host's benchmark resources. The exact rational enumeration
+certificate, not the floating-point approximation, should accompany the
+paper/source package.
+Because K is a nonnegative integer,
+    Pr[K<=245] >=1-EK/246 >0.05422067757,
+    p_good >=(1-EK/246)/64 >0.000847198087 >1/1181.
+The integer threshold 246, not 245, is essential to this Markov step.
+
+Consequently the first-success trial count has expectation less than 1181;
+retaining the whole final four-lane batch adds at most three outputs, giving
+an expected sampled-output count below 1184. Its deterministic cap T=2^20 has
+    Pr[no Good value among T] =(1-p_good)^T
+       <=exp(-T/1181) <2^-1280,
+since T/(1181*ln(2))=1280.92751498... . The algorithm itself remains strictly
+bounded, and this loss can be summed over polynomially many proof calls.
+The real force_vector_open evaluates batches of four over counters 0 through
+2^32-1; the simulator's cap is a prefix of exactly that search. An execution
+that reaches an outer signing retry necessarily exceeded the first T inner
+trials, so comparison with the existing outer attempt loop is also charged
+to this same tail event. No performance sample is used to justify the bound.
+
+7. Seed derivation, joint bound and extraction compatibility
+===========================================================
+The concrete randomized report/certificate wrappers feed a fresh 64-byte
+random seed to the signer. Stage 2 hashes this value together with the key,
+mu, attempt and suffix to derive the 32-byte root and 16-byte IV. On the
+initial attempt, replacing that fresh RO output by independently sampled
+root and IV changes the view only if the hidden stage-2 input is queried
+or collides with an existing input. Denote this probability epsilon_seed.
+Under classical hidden 512-bit fresh-seed sampling, a conservative
+lazy-sampling bound over S proof calls is
+    epsilon_seed <=binom(S,2)/2^512+S*q_2/(2^512-q_2),
+for q_2<2^512, capped at one. Count all other stage-2 queries in q_2, excluding
+only the S private target assignments themselves. The first term covers
+colliding private seeds; the second covers preexisting and subsequent input
+guesses. Repeats and extra attempts must be included in that bookkeeping.
+This argument does not apply to the optional deterministic random_seed=NULL
+API. The actual randomized wrapper, rather than that API, is the scope here.
+
+For at most S adaptive honest proof calls on true statements, the resulting
+joint real/simulated classical view has distinguishing advantage bounded
+conservatively by
+    epsilon_seed
+      +epsilon_punc^(S)
+      +2*sum_i epsilon_fresh,i
+      +S*(1-p_good)^T.
+Here the stage-5 portion of epsilon_fresh already includes all programming
+point collisions; the separate uniform-p bound in Section 3 is therefore
+not added again. Its stronger value can be useful in other hybrid orders,
+but is not needed to establish the present bound. Use the explicit primitive
+and tail bounds above for a common profile bound. The same controller retains
+the residual raw-SHAKE
+oracle and every Q/G namespace, so the statement is stable under ordinary
+adaptive auxiliary protocol computations. It assumes the proof oracle is
+an atomic service; it does not give a hostile concurrent scheduler access
+to the simulator's partially built transcript or private randomness.
+
+The public-extension acceptance proposition supports later outer-protocol
+hybrids in which PRF replacement makes a circuit statement false. The ZK
+comparison itself is only invoked before that replacement, on true inputs.
+Subsequent hybrids call the same public simulator on changed inputs, so they
+do not need an honest witness for those false inputs. This separates the two
+obligations without assuming that ordinary ZK already defines such behavior.
+
+For extraction, stages 6,7,8,9 stay honest; all commitment/check extraction
+snapshots and their bad-event bounds remain valid. Stages 1,3,4 also stay
+honest. The only programmed points lie on complete simulation statement
+chains at stage 5. Outside collisions of the preceding hash-chain values,
+reuse of a programmed point implies the same stage-4 preimage, then the same
+stage-3 preimage, then the same stage-1 statement/context input. Hence a proof
+using that point is not fresh for the WSE game's complete-statement notion.
+Fresh claims about a different relation, context or proof kind must use a
+fresh point or incur the explicit chain-collision/late-hit event. Namespacing
+helps route this argument; namespacing alone is not an extraction proof.
+
+None of this establishes a quantum simulator, quantum programming bound,
+quantum log extractor or QROM WSE. Those require separate theorems. The
+classical route here does supply a concrete public simulator and a primitive
+distributional proof strategy, rather than leaving 'joint simulation' as an
+undefined blanket assumption.

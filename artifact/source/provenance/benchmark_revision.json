@@ -1,0 +1,19 @@
+{
+  "schema": "claris-benchmark-harness-revision-v2",
+  "reason": "Chapter VII full-matrix run: time original-report validation for every selected-set size (including s=10 and s=20) instead of leaving those arrays empty, and record the driver process peak RSS (ru_maxrss) in reports.json.",
+  "protocol_backend_changed": false,
+  "vendor_sources_changed": false,
+  "changes": [
+    {
+      "file": "experiments/validate.c",
+      "previous_sha256": "91a7003f5f3d1c31f6ead243ab3cf045b032a0763d1b08ac0feebfc75f087176",
+      "current_sha256": "8b48a068acfaeb71593403f7529163d04a053bd8229e76ff9a026d4bb690c02b"
+    },
+    {
+      "file": "experiments/benchmark/ordinary_worker.c",
+      "previous_sha256": "f18249bd68f655bd62ad1104077c65e482593f293e2c198fe847a079e222d9ba",
+      "current_sha256": "1d31166e37fc383a100b29838360ad0835712fcb5be9536c0dc249ae90ab0de7"
+    }
+  ],
+  "note": "validate.c NR 7->20 and ordinary_worker batch bound 31 were the earlier matrix extension; ordinary_benchmark.c now times original-report validation for s=10/20 and records driver peak RSS."
+}

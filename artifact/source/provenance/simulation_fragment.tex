@@ -1,0 +1,202 @@
+\subsection{A public simulator for the concrete proof profiles}\label{app:public-simulation}
+
+We construct one classical online simulator for the ordinary profile $G$ and
+the corrected ring profile $Q$.  The complete statement includes the public
+circuit input, context, proof kind, and parameter profile.  All SHAKE calls
+share the namespace controller defined above, including adversarial calls on
+raw byte strings.  Each complete input determines one consistent XOF stream.
+The simulator programs only the final, stage-5 challenge; stages
+$1,3,4,6,7,8,9$ remain ordinary random oracles.  This explicit public algorithm
+is also defined on false statements, as required after tuple replacement in
+the privacy proof.
+
+\paragraph{Compressed-opening sampling.}
+Both profiles use $\lambda=256$, $\tau=22$ punctures, and a shared binary heap
+with $61\,440$ leaves.  The first $250$ challenge bits select eight $12$-bit
+and fourteen $11$-bit indices; the last six bits must be zero.  Let
+$A(\Delta)$ be the union of the selected leaves' paths to the root.  The
+compressed opening uses $K(\Delta)=|A(\Delta)|-43$ frontier seeds.  Define
+$\mathsf{Good}(\Delta)$ by the six zero bits and $K(\Delta)\le245$.
+This predicate depends on the public topology and challenge, not the tree
+seeds.  Write $p_{\rm good}=\Pr[\mathsf{Good}(\Delta)]$ for uniform
+$\Delta\in\{0,1\}^{256}$.
+
+For node $v$, let $a_i(v)$ count the leaves of logical vector $i$ below $v$,
+and let $L_i\in\{2048,4096\}$ be its size.  Independence of the disjoint
+challenge blocks gives
+\[
+ \mathbb E K=\sum_v\left[1-\prod_{i=1}^{22}
+          \left(1-\frac{a_i(v)}{L_i}\right)\right]-43
+          =232.66171331741478\ldots .
+\]
+The source package computes this sum with exact rational arithmetic using
+the implementation's leaf mapping.  Since $K$ is an integer, Markov's
+inequality and independence of the six remaining bits yield
+\[
+ p_{\rm good}\ge\frac{1}{64}
+       \left(1-\frac{\mathbb E K}{246}\right)>\frac1{1181}.
+\]
+We cap the simulator at $T=2^{20}$ trials, a prefix of the implemented
+$2^{32}$-counter search.  Its failure probability is at most
+$(1-p_{\rm good})^T\le e^{-T/1181}<2^{-1280}$.  The first-success trial count
+has expectation below $1181$; keeping the final four-output batch adds at
+most three outputs.
+
+\paragraph{Simulator.}
+On a well-formed statement $x$, $\mathsf{Sim}_T$ performs the following steps.
+\begin{enumerate}
+\item Sample independent uniform challenges in batches of four until the
+first good value, or abort at $T$.  Let $c$ be its index.  Retain every earlier
+value and the complete final batch, including values after $c$.
+\item Sample a uniform root seed and IV.  Generate a genuine compressed
+commitment and its opening at $\Delta_c$.  Independently sample the transmitted
+VOLE correction $C$ uniformly at its exact length.  Reconstruct the receiver
+matrix $Q$ and commitment digest using the actual public verifier.
+\item Compute the stage-1 statement digest and the stage-3 challenge
+$\chi_1$ normally.  Sample the check proof $h\gets\{0,1\}^{272}$ and the
+witness correction $d\gets\{0,1\}^{\ell}$, where $\ell$ is the witness
+length.  Run the receiver's VOLE check, including its stage-9 hash, and query
+stage~4 for $\chi_2$.  The latter has $104$ bytes in $G$ and $208$ in $Q$.
+\item Sample one uniform field element $p_1$ for $G$, or three
+$p_1,p_2,p_3$ for $Q$.  Apply $d$ to $Q$ and execute the actual constraint
+verifier and QuickSilver verification arithmetic, obtaining $z$.
+\item Form the exact final prefix: $\chi_2\|p_1\|z$ for $G$, or
+$\chi_2\|z\|p_1\|p_2\|p_3$ for $Q$.  At each retained counter append its
+four-byte little-endian encoding and the suffix byte.  If any resulting
+stage-5 input is already assigned, abort without overwriting it; otherwise
+assign the retained challenges at all these inputs.  Serialize the proof
+with the opening, $\Delta_c$, IV, and counter $c$.
+\end{enumerate}
+Longer XOF outputs receive consistent fresh extensions.  The procedure is an
+atomic classical proof-service call; the adversary receives neither its
+private randomness nor its internal query log.
+
+\begin{proposition}[Public extension]\label{prop:public-extension}
+For every well-formed public statement, including a false statement,
+$\mathsf{Sim}_T$ returns an accepting proof unless it aborts.
+\end{proposition}
+\begin{proof}
+The compressed opening is genuine and good.  The public verifier therefore
+reconstructs exactly the matrix, check digest, challenges, and QuickSilver
+check used by the simulator.  Its final input is the point programmed to
+$\Delta_c$.  These are all its checks.  The argument requires no witness;
+acceptance on a false statement relies on the simulator's programming
+capability, which an ordinary attacker does not possess.
+\end{proof}
+
+\paragraph{Masking argument.}
+Fix a good $\Delta$ and replace the hidden expanded VOLE stream in each
+logical vector by an independent uniform row string.  Let $U_i$ be the XOR
+of its streams.  The invertible map
+$(U_0,\ldots,U_{21})\mapsto(U_0,U_0+U_1,\ldots,U_0+U_{21})$ shows that
+$C$ is uniform and the common $U=U_0$ remains uniform given $C$ and the
+opened material.  Receiver reconstruction fixes $Q$, with $Q=V+U\Delta$.
+
+Split $U$ into witness rows, QuickSilver masks, and a $272$-bit check-mask
+tail $U_T$.  The implemented check is
+$h=L_{\chi_1}(U_W,U_M)+U_T$.  Thus $h$ is uniform; conditioning on it leaves
+$U_W,U_M$ free.  Linearity makes the receiver's stage-9 input equal the
+sender's.  The check proof is exactly $34$ bytes, not two full field elements.
+For a genuine witness $w$, $d=w+U_W$ is uniform.  Conditioning on $d$ fixes
+the witness rows while leaving the QuickSilver masks independent.
+
+Let $B_j$ be the unmasked constraint coefficients.  In $G$, the proof is
+$p_1=B_1+u_0$.  In $Q$, writing $q_i=v_i+\Delta u_i$ for the three receiver
+mask fields, the implementation gives
+\[
+ \begin{aligned}
+ p_3&=B_3+u_2,\\
+ p_2&=B_2+u_1+q_2+\Delta u_2,\\
+ p_1&=B_1+u_0+q_1+\Delta u_1.
+ \end{aligned}
+\]
+This triangular map has unit diagonal for every $\Delta$, including zero.
+Consequently the transmitted fields are independently uniform.  For a true
+witness the highest residual coefficient vanishes, so the constant
+coefficient equals the check recomputed by the verifier.  The ideal-stream
+transcript is therefore exactly the simulator's transcript at fixed
+$\Delta$.  No honest-prover distribution on false statements is invoked.
+
+\paragraph{Generator assumption and shared-root reduction.}
+Let $\eps_{\rm punc}^{(S)}$ denote the selective punctured-stream distinguishing
+advantage across $S$ calls to this concrete generator: choose each good
+$\Delta$ before its fresh tree
+generation, reveal the compressed opening, all opened leaf streams, hidden leaf commitments, and aggregate commitment digest, and
+compare its genuine hidden streams with independent uniform strings under
+adaptive public-oracle access.  This is an explicit primitive hiding game,
+independent of any circuit, witness, or proof-system ZK definition.
+
+A multipuncture hybrid replaces the expansions of marked internal nodes
+top-down.  There are $|A|-22=K+21\le266$ such nodes; treating the logical
+vectors as independent-root trees would be incorrect.  Once these expansions
+are randomized, hidden leaf seeds are independent.  The stage-6 output splits
+into a secret $256$-bit stream key and a public $512$-bit commitment.
+Replacing the $22$ secret-key streams and undoing the tree hybrids gives
+\[
+\eps_{\rm punc}^{(S)}\le532S\eps_{\rm tree}
+                       +22S\eps_{\rm stream}+\eps_{\rm hit}.
+\]
+Here the PRG advantages concern the configured AES-CTR generators with their
+public IV and auxiliary oracle access.  To embed a stream-PRG challenge whose
+key is unknown, the reduction keeps the hidden stage-6 key as a private
+opaque slot: subsequent construction needs only the supplied row stream and
+public commitment.  It aborts if another call reaches that leaf-oracle input.
+Before such a hit, neither the commitment nor stream reveals the independent
+hidden leaf seed.  Set $H=22S$; for $q_6$ other leaf-oracle calls,
+\[
+ \eps_{\rm hit}\le2\left[
+       \frac{\binom H2}{2^{256}}
+       +\frac{Hq_6}{2^{256}-q_6}\right],\qquad q_6<2^{256}.
+\]
+Only the targets' own private assignments are excluded
+from $q_6$; opened-leaf, adversarial, and other service calls are included.
+The factor two conservatively covers both endpoints.  Known-key AES
+computations continue normally: a coincidence with a challenge key is already
+part of the PRG distinguishing game.  No independence of public derived
+tree nodes is assumed.  Thus the hiding condition reduces to the stated
+generator PRG advantages and explicit hidden-input events.  Opaque slots
+are used only in this public-view PRG reduction.  The actual simulator knows
+its genuine leaf keys and gives the matched extractor explicit internal logs;
+that private extractor is not exposed to the ZK distinguisher.
+
+\paragraph{Fiat--Shamir order and joint error.}
+The randomized wrappers use a fresh private $64$-byte seed in stage~2.
+Replacing its hidden output by a uniform root and IV costs $\eps_{\rm seed}$;
+the deterministic null-seed API is outside this claim.  With $q_2$ other
+stage-2 queries, one may take
+$\eps_{\rm seed}\le\binom S2/2^{512}+S q_2/(2^{512}-q_2)$,
+for $q_2<2^{512}$, excluding the $S$ private target assignments themselves and capping at one.
+At the start of call
+$i$, let $q_{a,i}^{-}$ count assigned stage-$a$ inputs.  The fresh IV gives
+an old stage-3-input probability at most $q_{3,i}^{-}/2^{128}$.  Otherwise
+$\chi_1$ is fresh; the corresponding stage-4 bound is
+$q_{4,i}^{-}/2^{1344}$.  A fresh $\chi_2$ similarly bounds any previous
+stage-5-prefix match.  Set
+\[
+ \eps_{{\rm fresh},i}=
+ \frac{q_{3,i}^{-}}{2^{128}}+
+ \frac{q_{4,i}^{-}}{2^{1344}}+
+ \frac{q_{5,i}^{-}}{2^{b_4}},\qquad
+ b_4=\begin{cases}832&G,\\1664&Q.\end{cases}
+\]
+Outside this event the real counter outputs are independent uniform values,
+so they may be sampled before tree generation.  The punctured-stream hybrid
+then uses a selectively chosen puncture.  Its final hash inputs are computed
+from the resulting transcript; obsolete hash inputs are never retained.
+Keeping all rejected trials and the final four-output batch preserves the
+actual first-success distribution.  Always using counter zero would not.
+
+The same freshness bound holds for the simulator.  Truncating both endpoint
+experiments on that event, the adaptive joint simulation error for $S$ calls
+is bounded by
+\[
+ \eta_Z\le\eps_{\rm seed}+\eps_{\rm punc}^{(S)}
+       +2\sum_{i=1}^S\eps_{{\rm fresh},i}
+       +S(1-p_{\rm good})^T.
+\]
+All adversarial and service queries are counted in one controller.  The
+unchanged stages $6$--$9$ support the accompanying classical log extractor;
+a programmed stage-5 point is recorded against its complete simulation
+statement.  This establishes the required classical simulation interface
+under the stated generator hiding condition.  It does not supply quantum
+oracle programming or a QROM extractor.

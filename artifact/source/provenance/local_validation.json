@@ -1,0 +1,267 @@
+{
+  "date": "2026-10-02",
+  "profile": "CLARIS-Q-v2-G-v1",
+  "host": "macOS-15.3-arm64-arm-64bit-Mach-O",
+  "compiler": "Apple clang version 16.0.0 (clang-1600.0.26.3)\nTarget: arm64-apple-darwin24.3.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "clean_source_build_passed": true,
+  "targets": [
+    "ordinary",
+    "ring_n64",
+    "ring_n1024"
+  ],
+  "build_manifest_sha256": "14bc2fc0a05f78dc65521331e6fa153fd955622cca0e1b6010d1a95b0a35f99d",
+  "namespace_parameters": {
+    "ordinary": {
+      "profile": "CLARIS-PROOF-v1",
+      "proof_kind": "G",
+      "parameter_id": "09f4bb864d037c65edbf04c6617ce459c6a3c5f37659e6a3500e044354a5771d"
+    },
+    "ring_n64": {
+      "profile": "CLARIS-PROOF-v2",
+      "proof_kind": "Q",
+      "parameter_id": "b6859d2fb717d7799b49223097eccb943ea60e2638a5d23afa665d21d100c69d"
+    },
+    "ring_n1024": {
+      "profile": "CLARIS-PROOF-v2",
+      "proof_kind": "Q",
+      "parameter_id": "a0f12a840e1b6a6d070edae01b8d35ece4eade0a7fd58c2d3251322018512fc4"
+    }
+  },
+  "joint_functional_checks": [
+    {
+      "schema": "claris-smoke-v1",
+      "new_keys_generated": true,
+      "joint": {
+        "ring_size": 64,
+        "selected_count": 3,
+        "checks_passed": 27,
+        "functional_pass": true,
+        "ordinary_pair_proof_bytes": 49208,
+        "link_core_proof_bytes": 98416,
+        "pair_uses_ring_OR": false,
+        "quantum_security_certified": false,
+        "ring_report_AES_constraint_algorithm_changed": false,
+        "ring_report_OR_batching_changed": true
+      },
+      "fresh_public_verifier": {
+        "checks_passed": 10,
+        "private_keys_loaded": false,
+        "claim_identity_loaded": true,
+        "joint_pass": true
+      },
+      "fresh_link_only_verifier": {
+        "checks_passed": 9,
+        "private_keys_loaded": false,
+        "claim_identity_loaded": false,
+        "joint_pass": true
+      },
+      "temporary_keys_removed": true,
+      "transcript_profile": "CLARIS-Q-v2-G-v1",
+      "functional_test_only": true
+    },
+    {
+      "schema": "claris-smoke-v1",
+      "new_keys_generated": true,
+      "joint": {
+        "ring_size": 1024,
+        "selected_count": 3,
+        "checks_passed": 27,
+        "functional_pass": true,
+        "ordinary_pair_proof_bytes": 49208,
+        "link_core_proof_bytes": 98416,
+        "pair_uses_ring_OR": false,
+        "quantum_security_certified": false,
+        "ring_report_AES_constraint_algorithm_changed": false,
+        "ring_report_OR_batching_changed": true
+      },
+      "fresh_public_verifier": {
+        "checks_passed": 10,
+        "private_keys_loaded": false,
+        "claim_identity_loaded": true,
+        "joint_pass": true
+      },
+      "fresh_link_only_verifier": {
+        "checks_passed": 9,
+        "private_keys_loaded": false,
+        "claim_identity_loaded": false,
+        "joint_pass": true
+      },
+      "temporary_keys_removed": true,
+      "transcript_profile": "CLARIS-Q-v2-G-v1",
+      "functional_test_only": true
+    }
+  ],
+  "hash_namespace_checks": {
+    "functional_check_only": true,
+    "all_passed": true,
+    "scalar_vector_stage_lane_checks": 108,
+    "proof_kind_and_parameter_outputs_distinct": true,
+    "public_wrapper_matches_python_shake256": true,
+    "digests": {
+      "ordinary": {
+        "stage_1": "94039cdf7e55c02ab714adfa63e4ca48420c76b8940a18e65a1281802556a631",
+        "stage_2": "5adc95b33019356ff9ad9bbc1d12a45a085c9be0d47f9b120ccf4a3c0d85b70c",
+        "stage_3": "68922c3a8031392785333792113ca94b3169cf319ddc72d19dcab7aed9e20fe7",
+        "stage_4": "fffbe3902c549fd9aa21856ed6a03032bc4f67faebb49f34f21058c80c03dc72",
+        "stage_5": "22885473e1c6a18da0548f37355dc51ac9fdbf11bf43ce1cffc6942c44a1ff97",
+        "stage_6": "92e67953af17c7a6ca16a4cd1378432a92bef560f72b9e7f3fa223c9877a406a",
+        "stage_7": "1ba385f8cb6e4c58fe8ad6408c0a19b279db71b60fbbc5276391cc87d69791eb",
+        "stage_8": "5a4e2d3c7fa809f488b790406ea96f935e51494433392d240c054c88208ea163",
+        "stage_9": "b2a24716e6a47d69dc95cedfd7fa9109040c8a805da64e93a86b7b4e89b8b1e8",
+        "wrapper": "d4c07dcef3410c1812496b9ec7680ff47cc466d048125f92e66c0229594a3d95"
+      },
+      "ring_n64": {
+        "stage_1": "94e24ebe23b6de6f5b5e3d6fa11580174b07266083a221b8e0e427248e02b1ad",
+        "stage_2": "a0c51ab57f77faa6faabc019c8acfb9f56aa1a85107921ab5e97fe7ab3b2d7a6",
+        "stage_3": "56681f27024469e9d4d5b883d53b0d2c56e42c1015fa5b3a5f80770d84204a25",
+        "stage_4": "6fa96059ba76d0ad865607170d88caa482d4bd74bb4b8580422d5a84ab5628a8",
+        "stage_5": "d726b3d473996aeca68dc3da7fd298cb36154b27680729f9484b8de9f64d1c59",
+        "stage_6": "8b035aa64dc4f81c9e3c495c5abfc6c87a879d1eb95d6ec3b64088d6268db16d",
+        "stage_7": "5afa1169b2d645dd84426e4b9bba9fd39c45753121d5f34e7a36c6b5fc31eb6f",
+        "stage_8": "13771998e1a1ceaa87e4a967405218826d80a02dbd91d23cc82cddb4b3f849e3",
+        "stage_9": "c9297338fef0523386ad586cb3643684d5e97f736adbdae634f5d6785c6e8f7b",
+        "wrapper": "d4c07dcef3410c1812496b9ec7680ff47cc466d048125f92e66c0229594a3d95"
+      },
+      "ring_n1024": {
+        "stage_1": "1bcdd625cb0bd697119261ebae0e1b35bbd55e2a3974b1687f175d92021a1d4f",
+        "stage_2": "761f0bdb3fd04ba9a2d0fe383056721e3a7c3a384f7e4a11f81c344f1fd4cce0",
+        "stage_3": "81e20468150672ea4d4a8962defc2846df0c661881682d680c37db036a032030",
+        "stage_4": "376266f0e7812de3efc7d50a1af2f6ba7d3ba1609b5b000071dea4f55ac9ea6a",
+        "stage_5": "9459f0800c0029619f051f66e9c50e847a719e573eea935ee7d232df0dc4b31f",
+        "stage_6": "42b5492ffc82789b1c3ff7e9cac34e5c675b09b9f001b47f2293de2f4a5d11d1",
+        "stage_7": "d0b21db43f62a0594430236a5bc82b6568d299182f11321f3d8d9602b702ae3f",
+        "stage_8": "a480a670c3cc66bbcbccfa9ed20acb03f012bb0144726319bfc221f7595fbcb8",
+        "stage_9": "1e8db1c9c14fbe3490c1c8423d392a2233841af91f8b6e02b0b8988b952e9a90",
+        "wrapper": "d4c07dcef3410c1812496b9ec7680ff47cc466d048125f92e66c0229594a3d95"
+      }
+    }
+  },
+  "batching_algebra": {
+    "scope": "exact batching/selector algebra, not an AES signature forgery",
+    "legacy_nested_batch_nonzero_residual_cancelled": true,
+    "independent_inner_outer_polynomial_monomials": 24,
+    "selector_dimension": 8,
+    "selector_patterns_checked": 128,
+    "legacy_selector_aggregate_pass": 128,
+    "legacy_multi_hot_pass": 120,
+    "repaired_per_index_pass": 8,
+    "repaired_accepts_exactly_one_hot": true,
+    "dimension_32_one_hot_vectors_accepted": 32,
+    "dimension_32_three_hot_vectors_rejected": 4960,
+    "dimension_32_legacy_three_hot_vectors_accepted": 4960,
+    "fixed_branch_residual_exponents": {
+      "2": [
+        3,
+        4
+      ],
+      "3": [
+        2,
+        4
+      ],
+      "4": [
+        2,
+        3
+      ]
+    }
+  },
+  "selector_transcript_diagnostics": {
+    "scope": "low-level duplicated-ring selector diagnostics, not an end-to-end forgery",
+    "new_profile": [
+      {
+        "ring_size": 64,
+        "low_level_duplicate_ring": true,
+        "end_to_end_forgery_test": false,
+        "legacy": false,
+        "honest_accept": true,
+        "three_hot_first_accept": false,
+        "three_hot_second_accept": false,
+        "three_hot_both_accept": false,
+        "checks_passed": 4
+      },
+      {
+        "ring_size": 1024,
+        "low_level_duplicate_ring": true,
+        "end_to_end_forgery_test": false,
+        "legacy": false,
+        "honest_accept": true,
+        "three_hot_first_accept": false,
+        "three_hot_second_accept": false,
+        "three_hot_both_accept": false,
+        "checks_passed": 4
+      }
+    ],
+    "legacy_diagnostic": [
+      {
+        "ring_size": 64,
+        "low_level_duplicate_ring": true,
+        "end_to_end_forgery_test": false,
+        "legacy": true,
+        "honest_accept": true,
+        "three_hot_first_accept": true,
+        "three_hot_second_accept": true,
+        "three_hot_both_accept": true,
+        "checks_passed": 4
+      }
+    ]
+  },
+  "ordinary_backend_unchanged": {
+    "G_source_file_count": 75,
+    "G_changed_source_files": [],
+    "G_namespace_identical": true,
+    "binaries": {
+      "pair_cli": {
+        "old": "a39b851814febb1119c47749d4e960a62184d5c675afa2023c5478fd5a5aa936",
+        "new": "a39b851814febb1119c47749d4e960a62184d5c675afa2023c5478fd5a5aa936",
+        "identical": true
+      },
+      "ordinary_worker": {
+        "old": "97627327b3a25406eaae41a336dde5b48c0d8a15c0fff061c1880a9b353f26e6",
+        "new": "97627327b3a25406eaae41a336dde5b48c0d8a15c0fff061c1880a9b353f26e6",
+        "identical": true
+      }
+    }
+  },
+  "benchmark_pilot": {
+    "ring_size": 64,
+    "repeats": 1,
+    "warmups": 1,
+    "all_seven_reports_and_certificate_workloads_verified": true,
+    "separate_public_process_verified": true,
+    "not_used_for_performance_claims": true,
+    "concurrent_functional_tests_during_pilot": true
+  },
+  "not_tested": [
+    "Linux compilation/execution",
+    "native ARM backend"
+  ],
+  "security_scope": "Executed functional, algebraic and exact-count checks are distinct from the accompanying analytical classical-ROM simulation/extraction derivations. No simulator implementation or QROM proof is claimed.",
+  "formal_benchmark": {
+    "profile": "CLARIS-Q-v2-G-v1",
+    "rings": [
+      64,
+      1024
+    ],
+    "report_cells": 2,
+    "certificate_cells": 14,
+    "measured_samples_per_cell": 30,
+    "discarded_warmups_per_cell": 3,
+    "report_timing_samples": 60,
+    "certificate_batch_timing_samples": 420,
+    "original_set_timing_samples": 420,
+    "measured_individual_ordinary_proofs": 1080,
+    "fresh_public_verification_processes": 2,
+    "all_seven_reports_checked_per_process": true,
+    "summaries_recomputed_from_raw_samples": true,
+    "proof_and_request_lengths_checked": true,
+    "manifest_matches_benchmark_record": true,
+    "secret_key_files_present": false,
+    "validation_mode": "Read raw results, recompute statistics, inspect recorded public-verification logs and public fixture sizes; no new cryptographic execution or timing."
+  },
+  "exact_opening_bound": {
+    "script": "checks/check_opening_bound.py",
+    "result": "provenance/opening_bound_exact.json",
+    "host_execution_exit_code": 0,
+    "exact_numerator_and_denominator_matched": true,
+    "sampling_used": false
+  }
+}

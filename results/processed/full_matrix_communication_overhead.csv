@@ -1,0 +1,109 @@
+object,scope,bytes,transmission_measured,status,kib
+public_parameters,compile-time parameter tuple; no trusted-setup file,0,False,no serialized public parameter object in this profile,0.0
+user_public_key,one ring-profile public key,64,False,derived_from_compiled_constant,0.0625
+user_secret_key,one ring-profile secret key,64,False,derived_from_compiled_constant,0.0625
+claim_proof,one ordinary eight-block G proof,49208,False,measured fixture length,48.0546875
+link_edge_proof,one ordinary link-edge proof,49208,False,measured fixture length,48.0546875
+claim_certificate_s1,claim proof + claimant index + report id + context,49276,False,analytical wrapper over measured proof,48.12109375
+report_proof_N16,"anonymous report proof payload (Q-v2), N=16",50638,False,measured fixture length,49.451171875
+report_payload_N16,"report proof + 192 B message/nonce/tag fields, N=16",50830,False,measured fixture length,49.638671875
+ring_registry_N16,"32 public keys (p0,p1 per member)",2048,False,analytical from 2*N*64 bytes,2.0
+report_proof_N64,"anonymous report proof payload (Q-v2), N=64",50660,False,measured fixture length,49.47265625
+report_payload_N64,"report proof + 192 B message/nonce/tag fields, N=64",50852,False,measured fixture length,49.66015625
+ring_registry_N64,"128 public keys (p0,p1 per member)",8192,False,analytical from 2*N*64 bytes,8.0
+report_proof_N256,"anonymous report proof payload (Q-v2), N=256",50704,False,measured fixture length,49.515625
+report_payload_N256,"report proof + 192 B message/nonce/tag fields, N=256",50896,False,measured fixture length,49.703125
+ring_registry_N256,"512 public keys (p0,p1 per member)",32768,False,analytical from 2*N*64 bytes,32.0
+report_proof_N1024,"anonymous report proof payload (Q-v2), N=1024",50792,False,measured fixture length,49.6015625
+report_payload_N1024,"report proof + 192 B message/nonce/tag fields, N=1024",50984,False,measured fixture length,49.7890625
+ring_registry_N1024,"2048 public keys (p0,p1 per member)",131072,False,analytical from 2*N*64 bytes,128.0
+anchor_link_proof_s2,1 ordinary proofs,49208,False,measured proof files,48.0546875
+bridge_link_proof_s2,2 ordinary proofs + 64-byte bridge tuple,98480,False,measured proof files + 64-byte public bridge tuple,96.171875
+anchor_link_proof_s3,2 ordinary proofs,98416,False,measured proof files,96.109375
+bridge_link_proof_s3,3 ordinary proofs + 64-byte bridge tuple,147688,False,measured proof files + 64-byte public bridge tuple,144.2265625
+anchor_link_proof_s5,4 ordinary proofs,196832,False,measured proof files,192.21875
+bridge_link_proof_s5,5 ordinary proofs + 64-byte bridge tuple,246104,False,measured proof files + 64-byte public bridge tuple,240.3359375
+anchor_link_proof_s10,9 ordinary proofs,442872,False,measured proof files,432.4921875
+bridge_link_proof_s10,10 ordinary proofs + 64-byte bridge tuple,492144,False,measured proof files + 64-byte public bridge tuple,480.609375
+anchor_link_proof_s20,19 ordinary proofs,934952,False,measured proof files,913.0390625
+bridge_link_proof_s20,20 ordinary proofs + 64-byte bridge tuple,984224,False,measured proof files + 64-byte public bridge tuple,961.15625
+anchor_certificate_N16_s2,proofs + count + s report ids + context,49308,False,analytical wrapper over measured proofs,48.15234375
+bridge_certificate_N16_s2,proofs + bridge tuple + count + s report ids + context,98580,False,analytical wrapper over measured proofs,96.26953125
+anchor_complete_package_N16_s2,certificate + 2 report payloads (N=16) + 32-byte manifest digest,151000,False,analytical byte accounting; not a measured network transfer,147.4609375
+bridge_complete_package_N16_s2,certificate + 2 report payloads (N=16) + 32-byte manifest digest,200272,False,analytical byte accounting; not a measured network transfer,195.578125
+anchor_certificate_N16_s3,proofs + count + s report ids + context,98548,False,analytical wrapper over measured proofs,96.23828125
+bridge_certificate_N16_s3,proofs + bridge tuple + count + s report ids + context,147820,False,analytical wrapper over measured proofs,144.35546875
+anchor_complete_package_N16_s3,certificate + 3 report payloads (N=16) + 32-byte manifest digest,251070,False,analytical byte accounting; not a measured network transfer,245.185546875
+bridge_complete_package_N16_s3,certificate + 3 report payloads (N=16) + 32-byte manifest digest,300342,False,analytical byte accounting; not a measured network transfer,293.302734375
+anchor_certificate_N16_s5,proofs + count + s report ids + context,197028,False,analytical wrapper over measured proofs,192.41015625
+bridge_certificate_N16_s5,proofs + bridge tuple + count + s report ids + context,246300,False,analytical wrapper over measured proofs,240.52734375
+anchor_complete_package_N16_s5,certificate + 5 report payloads (N=16) + 32-byte manifest digest,451210,False,analytical byte accounting; not a measured network transfer,440.634765625
+bridge_complete_package_N16_s5,certificate + 5 report payloads (N=16) + 32-byte manifest digest,500482,False,analytical byte accounting; not a measured network transfer,488.751953125
+anchor_certificate_N16_s10,proofs + count + s report ids + context,443228,False,analytical wrapper over measured proofs,432.83984375
+bridge_certificate_N16_s10,proofs + bridge tuple + count + s report ids + context,492500,False,analytical wrapper over measured proofs,480.95703125
+anchor_complete_package_N16_s10,certificate + 10 report payloads (N=16) + 32-byte manifest digest,951560,False,analytical byte accounting; not a measured network transfer,929.2578125
+bridge_complete_package_N16_s10,certificate + 10 report payloads (N=16) + 32-byte manifest digest,1000832,False,analytical byte accounting; not a measured network transfer,977.375
+anchor_certificate_N16_s20,proofs + count + s report ids + context,935628,False,analytical wrapper over measured proofs,913.69921875
+bridge_certificate_N16_s20,proofs + bridge tuple + count + s report ids + context,984900,False,analytical wrapper over measured proofs,961.81640625
+anchor_complete_package_N16_s20,certificate + 20 report payloads (N=16) + 32-byte manifest digest,1952260,False,analytical byte accounting; not a measured network transfer,1906.50390625
+bridge_complete_package_N16_s20,certificate + 20 report payloads (N=16) + 32-byte manifest digest,2001532,False,analytical byte accounting; not a measured network transfer,1954.62109375
+anchor_certificate_N64_s2,proofs + count + s report ids + context,49308,False,analytical wrapper over measured proofs,48.15234375
+bridge_certificate_N64_s2,proofs + bridge tuple + count + s report ids + context,98580,False,analytical wrapper over measured proofs,96.26953125
+anchor_complete_package_N64_s2,certificate + 2 report payloads (N=64) + 32-byte manifest digest,151044,False,analytical byte accounting; not a measured network transfer,147.50390625
+bridge_complete_package_N64_s2,certificate + 2 report payloads (N=64) + 32-byte manifest digest,200316,False,analytical byte accounting; not a measured network transfer,195.62109375
+anchor_certificate_N64_s3,proofs + count + s report ids + context,98548,False,analytical wrapper over measured proofs,96.23828125
+bridge_certificate_N64_s3,proofs + bridge tuple + count + s report ids + context,147820,False,analytical wrapper over measured proofs,144.35546875
+anchor_complete_package_N64_s3,certificate + 3 report payloads (N=64) + 32-byte manifest digest,251136,False,analytical byte accounting; not a measured network transfer,245.25
+bridge_complete_package_N64_s3,certificate + 3 report payloads (N=64) + 32-byte manifest digest,300408,False,analytical byte accounting; not a measured network transfer,293.3671875
+anchor_certificate_N64_s5,proofs + count + s report ids + context,197028,False,analytical wrapper over measured proofs,192.41015625
+bridge_certificate_N64_s5,proofs + bridge tuple + count + s report ids + context,246300,False,analytical wrapper over measured proofs,240.52734375
+anchor_complete_package_N64_s5,certificate + 5 report payloads (N=64) + 32-byte manifest digest,451320,False,analytical byte accounting; not a measured network transfer,440.7421875
+bridge_complete_package_N64_s5,certificate + 5 report payloads (N=64) + 32-byte manifest digest,500592,False,analytical byte accounting; not a measured network transfer,488.859375
+anchor_certificate_N64_s10,proofs + count + s report ids + context,443228,False,analytical wrapper over measured proofs,432.83984375
+bridge_certificate_N64_s10,proofs + bridge tuple + count + s report ids + context,492500,False,analytical wrapper over measured proofs,480.95703125
+anchor_complete_package_N64_s10,certificate + 10 report payloads (N=64) + 32-byte manifest digest,951780,False,analytical byte accounting; not a measured network transfer,929.47265625
+bridge_complete_package_N64_s10,certificate + 10 report payloads (N=64) + 32-byte manifest digest,1001052,False,analytical byte accounting; not a measured network transfer,977.58984375
+anchor_certificate_N64_s20,proofs + count + s report ids + context,935628,False,analytical wrapper over measured proofs,913.69921875
+bridge_certificate_N64_s20,proofs + bridge tuple + count + s report ids + context,984900,False,analytical wrapper over measured proofs,961.81640625
+anchor_complete_package_N64_s20,certificate + 20 report payloads (N=64) + 32-byte manifest digest,1952700,False,analytical byte accounting; not a measured network transfer,1906.93359375
+bridge_complete_package_N64_s20,certificate + 20 report payloads (N=64) + 32-byte manifest digest,2001972,False,analytical byte accounting; not a measured network transfer,1955.05078125
+anchor_certificate_N256_s2,proofs + count + s report ids + context,49308,False,analytical wrapper over measured proofs,48.15234375
+bridge_certificate_N256_s2,proofs + bridge tuple + count + s report ids + context,98580,False,analytical wrapper over measured proofs,96.26953125
+anchor_complete_package_N256_s2,certificate + 2 report payloads (N=256) + 32-byte manifest digest,151132,False,analytical byte accounting; not a measured network transfer,147.58984375
+bridge_complete_package_N256_s2,certificate + 2 report payloads (N=256) + 32-byte manifest digest,200404,False,analytical byte accounting; not a measured network transfer,195.70703125
+anchor_certificate_N256_s3,proofs + count + s report ids + context,98548,False,analytical wrapper over measured proofs,96.23828125
+bridge_certificate_N256_s3,proofs + bridge tuple + count + s report ids + context,147820,False,analytical wrapper over measured proofs,144.35546875
+anchor_complete_package_N256_s3,certificate + 3 report payloads (N=256) + 32-byte manifest digest,251268,False,analytical byte accounting; not a measured network transfer,245.37890625
+bridge_complete_package_N256_s3,certificate + 3 report payloads (N=256) + 32-byte manifest digest,300540,False,analytical byte accounting; not a measured network transfer,293.49609375
+anchor_certificate_N256_s5,proofs + count + s report ids + context,197028,False,analytical wrapper over measured proofs,192.41015625
+bridge_certificate_N256_s5,proofs + bridge tuple + count + s report ids + context,246300,False,analytical wrapper over measured proofs,240.52734375
+anchor_complete_package_N256_s5,certificate + 5 report payloads (N=256) + 32-byte manifest digest,451540,False,analytical byte accounting; not a measured network transfer,440.95703125
+bridge_complete_package_N256_s5,certificate + 5 report payloads (N=256) + 32-byte manifest digest,500812,False,analytical byte accounting; not a measured network transfer,489.07421875
+anchor_certificate_N256_s10,proofs + count + s report ids + context,443228,False,analytical wrapper over measured proofs,432.83984375
+bridge_certificate_N256_s10,proofs + bridge tuple + count + s report ids + context,492500,False,analytical wrapper over measured proofs,480.95703125
+anchor_complete_package_N256_s10,certificate + 10 report payloads (N=256) + 32-byte manifest digest,952220,False,analytical byte accounting; not a measured network transfer,929.90234375
+bridge_complete_package_N256_s10,certificate + 10 report payloads (N=256) + 32-byte manifest digest,1001492,False,analytical byte accounting; not a measured network transfer,978.01953125
+anchor_certificate_N256_s20,proofs + count + s report ids + context,935628,False,analytical wrapper over measured proofs,913.69921875
+bridge_certificate_N256_s20,proofs + bridge tuple + count + s report ids + context,984900,False,analytical wrapper over measured proofs,961.81640625
+anchor_complete_package_N256_s20,certificate + 20 report payloads (N=256) + 32-byte manifest digest,1953580,False,analytical byte accounting; not a measured network transfer,1907.79296875
+bridge_complete_package_N256_s20,certificate + 20 report payloads (N=256) + 32-byte manifest digest,2002852,False,analytical byte accounting; not a measured network transfer,1955.91015625
+anchor_certificate_N1024_s2,proofs + count + s report ids + context,49308,False,analytical wrapper over measured proofs,48.15234375
+bridge_certificate_N1024_s2,proofs + bridge tuple + count + s report ids + context,98580,False,analytical wrapper over measured proofs,96.26953125
+anchor_complete_package_N1024_s2,certificate + 2 report payloads (N=1024) + 32-byte manifest digest,151308,False,analytical byte accounting; not a measured network transfer,147.76171875
+bridge_complete_package_N1024_s2,certificate + 2 report payloads (N=1024) + 32-byte manifest digest,200580,False,analytical byte accounting; not a measured network transfer,195.87890625
+anchor_certificate_N1024_s3,proofs + count + s report ids + context,98548,False,analytical wrapper over measured proofs,96.23828125
+bridge_certificate_N1024_s3,proofs + bridge tuple + count + s report ids + context,147820,False,analytical wrapper over measured proofs,144.35546875
+anchor_complete_package_N1024_s3,certificate + 3 report payloads (N=1024) + 32-byte manifest digest,251532,False,analytical byte accounting; not a measured network transfer,245.63671875
+bridge_complete_package_N1024_s3,certificate + 3 report payloads (N=1024) + 32-byte manifest digest,300804,False,analytical byte accounting; not a measured network transfer,293.75390625
+anchor_certificate_N1024_s5,proofs + count + s report ids + context,197028,False,analytical wrapper over measured proofs,192.41015625
+bridge_certificate_N1024_s5,proofs + bridge tuple + count + s report ids + context,246300,False,analytical wrapper over measured proofs,240.52734375
+anchor_complete_package_N1024_s5,certificate + 5 report payloads (N=1024) + 32-byte manifest digest,451980,False,analytical byte accounting; not a measured network transfer,441.38671875
+bridge_complete_package_N1024_s5,certificate + 5 report payloads (N=1024) + 32-byte manifest digest,501252,False,analytical byte accounting; not a measured network transfer,489.50390625
+anchor_certificate_N1024_s10,proofs + count + s report ids + context,443228,False,analytical wrapper over measured proofs,432.83984375
+bridge_certificate_N1024_s10,proofs + bridge tuple + count + s report ids + context,492500,False,analytical wrapper over measured proofs,480.95703125
+anchor_complete_package_N1024_s10,certificate + 10 report payloads (N=1024) + 32-byte manifest digest,953100,False,analytical byte accounting; not a measured network transfer,930.76171875
+bridge_complete_package_N1024_s10,certificate + 10 report payloads (N=1024) + 32-byte manifest digest,1002372,False,analytical byte accounting; not a measured network transfer,978.87890625
+anchor_certificate_N1024_s20,proofs + count + s report ids + context,935628,False,analytical wrapper over measured proofs,913.69921875
+bridge_certificate_N1024_s20,proofs + bridge tuple + count + s report ids + context,984900,False,analytical wrapper over measured proofs,961.81640625
+anchor_complete_package_N1024_s20,certificate + 20 report payloads (N=1024) + 32-byte manifest digest,1955340,False,analytical byte accounting; not a measured network transfer,1909.51171875
+bridge_complete_package_N1024_s20,certificate + 20 report payloads (N=1024) + 32-byte manifest digest,2004612,False,analytical byte accounting; not a measured network transfer,1957.62890625

@@ -1,93 +1,66 @@
 # CLARIS experiment execution status
 
-Last updated: 2026-11-03 (UTC)
+Last updated: 2026-11-04 (UTC)
 
 This status is separate from the target list in [CHAPTER_VII_EXPERIMENTS.md](CHAPTER_VII_EXPERIMENTS.md). A check is marked complete only when a corresponding run record exists.
 
 ## Completed
 
-### 1. Upstream VOLEitH baseline
+### 1. Full CLARIS matrix on one build and one host (2026-11-04)
 
-Pinned upstream commit: `fa540fa152303a23b55a0a63efe20977076a6e15`.
+The full Chapter VII matrix has been measured:
 
-Two successful GitHub Actions runs provide one-shot measurements at 128 bits; the newer workflow also provides the matched 256-bit profile:
+- N ∈ {16, 64, 256, 1024}; s ∈ {2, 3, 5, 10, 20}; claim baseline at s = 1.
+- Anchor and Common Bridge measured separately for every s ≥ 2.
+- 3 warm-ups and 30 measured samples in every cell (44 certificate cells and 4 report cells; 1,440 timed samples, all raw samples retained).
+- Original-report validation timed separately for every cell, including s = 10 and s = 20.
+- Fresh public-only reconstruction (`PUBLIC_RECONSTRUCTION_VERIFIED_NO_PRIVATE_KEY`) after each ring size; no signing keys loaded.
+- One build for all ring sizes, transcript profile CLARIS-Q-v2-G-v1.
 
-- Earlier 128-bit run: [#41467761462](https://github.com/fangbiaomail-code/CLARIS-experiments/actions/runs/41467761462), raw data in `results/raw/upstream_baseline_128.csv`.
-- Newer 128-bit rerun: [#41581088450](https://github.com/fangbiaomail-code/CLARIS-experiments/actions/runs/41581088450), raw data in `results/raw/upstream_baseline_128_run2.csv`.
-- Matched 256-bit baseline: [#41581088450](https://github.com/fangbiaomail-code/CLARIS-experiments/actions/runs/41581088450), raw data in `results/raw/upstream_baseline_256.csv`.
+Environment: Apple M1, 8 GiB, macOS 15.3 (24D60), Apple Clang 16.0.0; x86_64 target with AVX2/AES-NI/PCLMUL executed through Rosetta 2. Build manifest SHA-256 `534301c2171bfbbea5fe3f62da6a95e5661b6064522894427cebc1a32193119e`; build provenance in `results/metadata/full_matrix_build_summary.json`.
 
-| N | 128-bit signature B | 128-bit sign ms (run 2) | 128-bit verify ms (run 2) | 256-bit signature B | 256-bit sign ms | 256-bit verify ms |
+| N | report proof B | report gen ms | report ver ms | claim gen ms | claim ver ms | original-set (s=20) ms |
 |---:|---:|---:|---:|---:|---:|---:|
-| 16 | 4,594 | 8.732900 | 12.880490 | 20,184 | 11,524.973270 | 61.005410 |
-| 64 | 4,594 | 8.739430 | 12.780180 | 20,184 | 16,153.537580 | 71.249180 |
-| 256 | 4,594 | 8.798258 | 12.799480 | 20,184 | 11,298.807750 | 61.676680 |
-| 1024 | 4,594 | 8.706277 | 12.765945 | 20,184 | 10,603.059960 | 61.750140 |
+| 16 | 50,638 | 293.80 | 358.02 | 283.51 | 356.98 | 7,132 |
+| 64 | 50,660 | 319.87 | 380.40 | 278.57 | 351.58 | 8,023 |
+| 256 | 50,704 | 450.91 | 486.79 | 292.40 | 366.91 | 9,748 |
+| 1024 | 50,792 | 896.12 | 834.28 | 286.72 | 363.63 | 16,066 |
 
-Each cell is one benchmark sample. The older 128-bit run is retained separately because it used a different hosted runner and gave different timings. These are reference observations, not statistically robust performance rankings. The 128-bit profile must not be compared as a matched-security result against the AES-256 CLARIS prototype.
+All values are medians of 30 measured samples. Claim/link proofs are 49,208 B each. Link generation is linear in the number of ordinary proofs: 271.6–291.6 ms per proof generation and 343.2–366.2 ms per proof verification, with R² > 0.9996 over all s = 1…20 cells of each ring size.
 
-### 2. Full-matrix CLARIS source build
+The first N=16 run started immediately after a ~5-minute functional suite and its report cell was ~10% slow (324.0 ms vs 291.9 ms in a control re-measurement). N=16 was re-measured on the same build and host; the re-measured cells are used and the first run is preserved in `results/fullmatrix/n16`. Provenance is recorded in `results/aggregate_full_matrix.json`.
 
-The archived source was extended in a separate working copy to support the Chapter VII matrix. The extension is limited to the experimental harness and does not alter the vendor AES/VOLE implementation, Q-v2 batching patch, G-v1 ordinary relation, or transcript domains.
+### 2. Primitive microbenchmarks
 
-- Source integrity: 114 inventoried files pass after refreshing the inventory for this matrix revision.
-- Clean build: ordinary target plus ring targets N = 16, 64, 256, 1024.
-- Compiler: Clang 17.0.0.
-- Flags: `-O2 -march=x86-64 -mavx2 -maes -mpclmul -DNDEBUG` plus the recorded platform defines.
-- Host: AMD EPYC 9V74 80-Core Processor, x86_64 Linux; 5 CPUs exposed to this container.
-- The build manifest is retained with the local run outputs.
+Six operations actually used by the code, 50 samples each with 3 warm-ups and inner repetitions: AES-256 key schedule, AES-256 CTR block, SHAKE256, rand_bytes, vendor small-VOLE sender and receiver. See `results/processed/full_matrix_basic_operations.csv` and `results/raw/full_matrix_primitive_samples.csv`.
 
-### 3. Functional and algebraic checks
+### 3. Primitive call counts from a counter build
 
-All four ring sizes passed the functional smoke suite:
+A separate counter-instrumented build counts AES key schedules, AES-256 blocks, SHAKE256 init/update/final and VOLE sender/receiver calls per operation. Counts are in `results/processed/full_matrix_operation_counts.csv`; the diagnostic build is not used for timing.
 
-| N | Joint checks | Fresh public verifier | Identity-free link verifier |
-|---:|---:|---:|---:|
-| 16 | 27/27 | 10/10 | 9/9 |
-| 64 | 27/27 | 10/10 | 9/9 |
-| 256 | 27/27 | 10/10 | 9/9 |
-| 1024 | 27/27 | 10/10 | 9/9 |
+### 4. Functional checks at all four ring sizes
 
-The fresh verifier processes loaded public reports/certificates without loading signing keys. These are functional tests, not a cryptographic security proof.
+All four ring sizes pass the joint, fresh-public and identity-free link checks (53 / 23 / 22 checks under the 20-report fixture), with temporary signing keys removed. These are functional checks, not a security proof.
 
-Additional checks passed:
+### 5. Anchor/Bridge ablation, peak RSS and communication accounting
 
-- AES byte pseudoinverse relation: 65,536 byte pairs checked; 256 satisfying pairs.
-- Transcript namespace separation: 180 scalar/vector/stage/lane checks.
-- Batching/selector algebra checks.
-- Opening-bound exact-counting check.
+- Ablation: Anchor uses s−1 ordinary proofs and Bridge s; the proof-size saving is exactly 49,208 B (1/s of the certificate). See `results/processed/full_matrix_anchor_bridge_ablation.csv`.
+- Peak RSS: proving worker 71.7–95.7 MiB; report-generation driver 71.8–87.5 MiB; independent public verification 50.7–58.0 MiB.
+- Communication: byte accounting only, distinguishing proof-only, certificate + references, and complete evidence package (`results/processed/full_matrix_communication_overhead.csv`).
 
-Low-level selector transcript diagnostics passed for N = 16, 64, 256. The N=1024 selector diagnostic is still pending; it was not counted as passed in this run.
+### 6. Published artifact
 
-### 4. Earlier local CLARIS measurements
+`artifact/` contains the exact source package, the harness extension and the scripts used for the run (build, matrix driver, functional checks, primitive benchmark, analysis, counter diagnostics). The harness changes are recorded with previous/current SHA-256 in `artifact/source/provenance/benchmark_revision.json`.
 
-The repository retains earlier measurements from a different host/source run:
+### 7. Upstream VOLEitH baseline (archived)
 
-- N=64 ordinary-proof subset: 30 samples and 3 warm-ups for report, claim, Anchor and Bridge at s = 2, 3, 5; see [claris_local_n64_summary.csv](results/processed/claris_local_n64_summary.csv).
-- N=16 full selected-size matrix summary: see [claris_local_n16_summary.csv](results/processed/claris_local_n16_summary.csv).
-- Primitive microbenchmarks: 50,000 repetitions each for AES-256 key schedule, one-block AES-256 CTR and SHAKE256; see [primitive_benchmark.csv](results/raw/primitive_benchmark.csv).
+Pinned upstream commit `fa540fa152303a23b55a0a63efe20977076a6e15`; 128-bit and matched 256-bit one-shot observations for N = 16, 64, 256, 1024 remain in `results/raw/upstream_baseline_*.csv`. They are descriptive only and are not a matched-security comparison with CLARIS.
 
-Do not combine these earlier measurements with the new AMD EPYC/Clang 17 full-matrix run. Their host and source/build provenance differ.
+## Not complete / limits
 
-## In progress
-
-### 5. Full CLARIS matrix on one host
-
-The current full run is using one build and one host for all ring sizes:
-
-- N ∈ {16, 64, 256, 1024}
-- s ∈ {2, 3, 5, 10, 20}
-- Claim baseline at s=1
-- Anchor and Bridge separately for every s >= 2
-- 3 warm-ups and 30 measured repetitions per cell
-- Fresh public-only reconstruction check after each ring size
-
-The run writes raw per-cell JSON, request/proof fixtures, public verifier logs, and a hash manifest to the local `claris-results-fullmatrix/` directory. Results will be uploaded only after each ring size and its independent verifier pass.
-
-## Not yet complete / limits
-
-- The current full-matrix run has not yet completed.
-- The full evidence package is an analytical byte-accounting model; no deployed network transfer was measured.
-- The ordinary-pair benchmark separates original-report validation from core proof verification. It does not claim one combined end-to-end service latency.
-- External constructions (Park–Sealfon, Fiore et al., DualRing-PRF, SPRING, Chiang et al., and TalosLogic) have a source-grounded construction/security comparison in [SECURITY_PROPERTY_COMPARISON.md](docs/SECURITY_PROPERTY_COMPARISON.md), but matched executable benchmarks beyond the pinned Chiang et al. baseline are not complete.
-- The joint QROM proof-system transfer obligations and real-AES tuple assumptions remain conditional. Functional tests do not establish those security proofs.
-- The full matrix source revision is currently a local working copy; the complete source tree and raw per-sample files are not yet committed to this repository.
+- External schemes (Park–Sealfon, Fiore et al., DualRing-PRF, SPRING, TalosLogic) still have no matched executable benchmark. The published Chiang et al. implementation is the only runnable external baseline; its security profile differs from the AES-256 CLARIS prototype and each N has one sample, so no speed ranking is computed.
+- All timings are Rosetta-translated x86_64 execution on an Apple Silicon host, not native x86_64 or ARM.
+- `complete_verify_median_ms` is the sum of two separately measured medians (original-set validation and ordinary proof verification), not one end-to-end timer.
+- Communication sizes are byte accounting over measured fixtures and compiled constants; no deployed network transfer was measured.
+- The 2026-10-02 archived CLARIS measurements and the earlier 2026-11-01 runs are retained for provenance but are not mixed into the 2026-11-04 matrix.
+- The joint QROM proof-system transfer obligations and real-AES tuple assumptions remain conditional; functional tests do not establish those proofs.

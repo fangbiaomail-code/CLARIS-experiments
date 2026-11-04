@@ -1,0 +1,22 @@
+{
+  "profile": "CLARIS-Q-v2-G-v1",
+  "rings": [
+    64,
+    1024
+  ],
+  "report_cells": 2,
+  "certificate_cells": 14,
+  "measured_samples_per_cell": 30,
+  "discarded_warmups_per_cell": 3,
+  "report_timing_samples": 60,
+  "certificate_batch_timing_samples": 420,
+  "original_set_timing_samples": 420,
+  "measured_individual_ordinary_proofs": 1080,
+  "fresh_public_verification_processes": 2,
+  "all_seven_reports_checked_per_process": true,
+  "summaries_recomputed_from_raw_samples": true,
+  "proof_and_request_lengths_checked": true,
+  "manifest_matches_benchmark_record": true,
+  "secret_key_files_present": false,
+  "validation_mode": "Read raw results, recompute statistics, inspect recorded public-verification logs and public fixture sizes; no new cryptographic execution or timing."
+}

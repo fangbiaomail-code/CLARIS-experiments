@@ -1,0 +1,33 @@
+ring_size,test,evidence,result,joint_checks,fresh_public_checks,fresh_link_checks,measurement_status
+16,Correct identity claim,EX01 actual signer claims original signature,PASS,53,23,22,measured_functional_test
+16,Wrong identity claim rejected,EX01 wrong claimed identity rejected,PASS,53,23,22,measured_functional_test
+16,Same-owner reports link,EX02 selected three signatures link anonymously,PASS,53,23,22,measured_functional_test
+16,Different-owner reports separated,EX02 full mixed-signer linking proof rejected,PASS,53,23,22,measured_functional_test
+16,Tampered report content rejected,message/nonce substitution rejected,PASS,53,23,22,measured_functional_test
+16,Replaced report identifier rejected,proof transplant / unselected report substitution rejected,PASS,53,23,22,measured_functional_test
+16,Tampered context rejected,selected-set order and context substitution rejected,PASS,53,23,22,measured_functional_test
+16,Public verification without secret key,fresh public verifier and identity-free link verifier,PASS,53,23,22,measured_functional_test
+64,Correct identity claim,EX01 actual signer claims original signature,PASS,53,23,22,measured_functional_test
+64,Wrong identity claim rejected,EX01 wrong claimed identity rejected,PASS,53,23,22,measured_functional_test
+64,Same-owner reports link,EX02 selected three signatures link anonymously,PASS,53,23,22,measured_functional_test
+64,Different-owner reports separated,EX02 full mixed-signer linking proof rejected,PASS,53,23,22,measured_functional_test
+64,Tampered report content rejected,message/nonce substitution rejected,PASS,53,23,22,measured_functional_test
+64,Replaced report identifier rejected,proof transplant / unselected report substitution rejected,PASS,53,23,22,measured_functional_test
+64,Tampered context rejected,selected-set order and context substitution rejected,PASS,53,23,22,measured_functional_test
+64,Public verification without secret key,fresh public verifier and identity-free link verifier,PASS,53,23,22,measured_functional_test
+256,Correct identity claim,EX01 actual signer claims original signature,PASS,53,23,22,measured_functional_test
+256,Wrong identity claim rejected,EX01 wrong claimed identity rejected,PASS,53,23,22,measured_functional_test
+256,Same-owner reports link,EX02 selected three signatures link anonymously,PASS,53,23,22,measured_functional_test
+256,Different-owner reports separated,EX02 full mixed-signer linking proof rejected,PASS,53,23,22,measured_functional_test
+256,Tampered report content rejected,message/nonce substitution rejected,PASS,53,23,22,measured_functional_test
+256,Replaced report identifier rejected,proof transplant / unselected report substitution rejected,PASS,53,23,22,measured_functional_test
+256,Tampered context rejected,selected-set order and context substitution rejected,PASS,53,23,22,measured_functional_test
+256,Public verification without secret key,fresh public verifier and identity-free link verifier,PASS,53,23,22,measured_functional_test
+1024,Correct identity claim,EX01 actual signer claims original signature,PASS,53,23,22,measured_functional_test
+1024,Wrong identity claim rejected,EX01 wrong claimed identity rejected,PASS,53,23,22,measured_functional_test
+1024,Same-owner reports link,EX02 selected three signatures link anonymously,PASS,53,23,22,measured_functional_test
+1024,Different-owner reports separated,EX02 full mixed-signer linking proof rejected,PASS,53,23,22,measured_functional_test
+1024,Tampered report content rejected,message/nonce substitution rejected,PASS,53,23,22,measured_functional_test
+1024,Replaced report identifier rejected,proof transplant / unselected report substitution rejected,PASS,53,23,22,measured_functional_test
+1024,Tampered context rejected,selected-set order and context substitution rejected,PASS,53,23,22,measured_functional_test
+1024,Public verification without secret key,fresh public verifier and identity-free link verifier,PASS,53,23,22,measured_functional_test

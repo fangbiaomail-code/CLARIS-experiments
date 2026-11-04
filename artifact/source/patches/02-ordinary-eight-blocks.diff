@@ -1,0 +1,22 @@
+--- a/owf_proof.h
++++ b/owf_proof.h
+@@ -11,7 +11,7 @@
+ 	#define OWF_BLOCK_SIZE 16
+ 	// Number of blocks encrypted in the OWF.
+ 	// (1 for 128 bit, 2 for 192/256 bit to compensate for the 128 bit block size)
+-	#define OWF_BLOCKS ((SECURITY_PARAM + 127) / 128)
++	#define OWF_BLOCKS 8
+ 	// How many constraints are used to encode the correctness of evaluating a single round.
+ #if defined(ALLOW_ZERO_SBOX)
+ 	#define OWF_CONSTRAINTS_PER_ROUND (2*OWF_BLOCK_SIZE)
+--- a/faest.h
++++ b/faest.h
+@@ -31,7 +31,7 @@
+ #if defined(OWF_AES_CTR) && SECURITY_PARAM == 192
+ #define FAEST_PUBLIC_KEY_BYTES (32 + FAEST_IV_BYTES)
+ #else
+-#define FAEST_PUBLIC_KEY_BYTES FAEST_SECRET_KEY_BYTES
++#define FAEST_PUBLIC_KEY_BYTES (2 * FAEST_IV_BYTES)
+ #endif
+ 
+ #if USE_IMPROVED_VECTOR_COMMITMENTS == 0 && ZERO_BITS_IN_CHALLENGE_3 == 0

@@ -1,0 +1,52 @@
+{
+  "schema": "claris-full-matrix-build-summary-v1",
+  "compiler": "Apple clang version 16.0.0 (clang-1600.0.26.3)\nTarget: arm64-apple-darwin24.3.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "flags": [
+    "-arch",
+    "x86_64",
+    "-O2",
+    "-march=x86-64",
+    "-mavx2",
+    "-maes",
+    "-mpclmul",
+    "-DNDEBUG",
+    "-D_bswap64=__builtin_bswap64",
+    "-std=c11",
+    "-Wno-ignored-attributes",
+    "-Wno-unused-value",
+    "-Wno-incompatible-pointer-types-discards-qualifiers"
+  ],
+  "execution_target": "x86_64 AVX2 AES PCLMUL",
+  "transcript_profile": "CLARIS-Q-v2-G-v1",
+  "network_used": false,
+  "targets": [
+    {
+      "target": "ordinary",
+      "binary_sha256": "a39b851814febb1119c47749d4e960a62184d5c675afa2023c5478fd5a5aa936",
+      "benchmark_binary_sha256": "310022d66bc3688cf1a6656a07ec081fe758f04d7df8717e0104612883d834d5"
+    },
+    {
+      "target": "ring_n16",
+      "binary_sha256": "10339c176f850fc010e7959d6f1af2430e3d9b3051e96f04569bdf0c401ada37",
+      "benchmark_binary_sha256": "da02479d0d0f2a83583a6bcc8dc64149d579b8606d0485820ada9b00136af964"
+    },
+    {
+      "target": "ring_n64",
+      "binary_sha256": "a2fe6c3621a6dd4f53645c8e60039ba9dd0d7777311c101ee051b2090ddb8464",
+      "benchmark_binary_sha256": "56c43975069e3c1805e626304ab831f49ea646c2c92d24e8a276501550c73d7c"
+    },
+    {
+      "target": "ring_n256",
+      "binary_sha256": "db598a90a8076fa10e675b3b0d0bdebd715c2aa72691cabe084227961a5e0b90",
+      "benchmark_binary_sha256": "626dffc054690ceaf39263ecd0d964740dc048e5ee814ef77c7893255948253c"
+    },
+    {
+      "target": "ring_n1024",
+      "binary_sha256": "c60d7ab92aa583dd09eea89545e809f3c01fab8c3f8846ebc0af90837f3335d3",
+      "benchmark_binary_sha256": "3d81f32b68b908ceec94f71035fa11b23a8fc0d4b48692c07628238a0ffc9d0f"
+    }
+  ],
+  "full_build_manifest_sha256": "534301c2171bfbbea5fe3f62da6a95e5661b6064522894427cebc1a32193119e",
+  "source_inventory_sha256": "4a893a976f440c646d0cf8ffc42ebc97dcfad7f0e323f0662bb11044107ee7eb",
+  "harness_revision_sha256": "577ac8264f9060eef1d5cb935bf0c99f588b4c8cc871b84291bc1d2a5545af4b"
+}

@@ -23,7 +23,7 @@ This table is a literature-level comparison for Chapter VII. It is not a cryptog
 
 - The pinned Chiang et al. implementation is the only external executable baseline currently integrated into this workspace.
 - The 128-bit baseline observations are one sample per ring size and are descriptive only.
-- A 256-bit baseline workflow is running to align the security target with the AES-256 CLARIS prototype.
+- The 256-bit baseline is complete (one sample per N); the full CLARIS N x s matrix was measured on 2026-11-04 on one build and one host (see `EXPERIMENT_STATUS.md`).
 - No speed ranking against DualRing-PRF, SPRING, Park–Sealfon, Fiore et al., or TalosLogic is reported. Their concrete runtimes are not matched in hardware, security level, implementation, and operation scope.
 
 ## References

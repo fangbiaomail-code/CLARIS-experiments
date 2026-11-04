@@ -1,0 +1,182 @@
+Concrete selector and structured-batching proof, CLARIS Q profile v2
+2026-10-02
+
+1. Exactly what the source audit found
+
+Original quicksilver.c uses the same tuple of batch coefficients for the branch
+constraints and their outer aggregation. quicksilver_init_or_prover explicitly
+comments that the keys are reused; the verifier does the same. Let
+    H(v)=a P_v(alpha)+b P_v(beta), P_v(X)=sum_j v_j X^(m-1-j).
+Here a,b,alpha are full F_(2^256) elements and beta is the embedded 64-bit key.
+The final branch contribution is the same H applied again to branch hashes.
+That repeated-key map has deterministic nonzero kernels. For outer exponents
+p=2,3,4 take branch residual polynomials
+    f_2(X)=X^3+X^4, f_3(X)=X^2+X^4, f_4(X)=X^2+X^3.
+Each branch residual is nonzero. Nevertheless,
+ sum_p [a alpha^p+b beta^p][a f_p(alpha)+b f_p(beta)] = 0
+identically over any characteristic-two field. The a^2 and b^2 terms cancel
+pairwise; the ab terms cancel because the bivariate residual matrix is symmetric
+with zero diagonal. In the old N=64 layout these are branches 63,62,61, whose
+outer exponents are 2,3,4 because two selector aggregate checks follow them.
+These three branches can all be activated by one three-hot selector and one
+one-hot selector. The analogous last three branches work at N=1024.
+
+This is a deterministic counterexample to the generic batching map's claimed
+nonzero-residual bound. It is NOT an end-to-end AES forgery: we have not shown
+that these particular residual vectors can be produced by the restricted AES
+branch circuit and a common witness. It therefore invalidates a direct generic
+batching proof for the original code, not by itself every security property of
+the original ring signature.
+
+The original selector check also adds all (sigma-label_i)b_i before hashing.
+Since sum b_i=1 by the derived parity bit and sigma=sum label_i b_i, its sum
+is identically zero. In addition, poly_secpar_from_1(idx+1) is a bit embedding:
+poly128_from_1 masks x&1 when POLY_VEC_LEN=1. Thus it does not give distinct
+index labels. Checking this sum cannot independently establish one-hotness.
+The whole intended branch language might still force unique ownership under
+the honest distinct registry, but that requires the sound branch batching that
+the preceding counterexample prevents us from importing generically.
+
+2. Implemented repair, Q only
+
+patch_ring_batching_v2.py makes the following changes in a copied Q backend:
+ - Extend the QuickSilver challenge from 104 to 208 bytes. The first 104 bytes
+   contain outer (a,b,alpha,beta); the second 104 bytes contain independent
+   branch (a_in,b_in,alpha_in,beta_in). They are disjoint slices of one fresh
+   stage-4 SHAKE response. Branch updates and branch hash combination use only
+   the second tuple. Final/global constraints use only the first tuple.
+ - For each selector dimension and each position, add (sigma-label_i)b_i as
+   its own final-batch coefficient. The per-position label is the injective
+   polynomial-basis embedding poly_secpar_set_low32(i+1).
+ - Preserve the maximum polynomial degree four by shifting each degree-two
+   selector constraint by X^2. This changes the number of coefficients fed to
+   the final hash but adds no witnesses, proof fields or VOLE masking rows.
+ - Increase final_constraints by replacing d with d*m, where d=2 and m=sqrt(N).
+   The prover/verifier use the same position-then-dimension order.
+
+The patch is restricted to the audited d=2 configuration. The G implementation,
+its 104-byte challenge, its source and its v1 namespace are unchanged. Q uses
+the v2 namespace, whose parameter fingerprint also includes quicksilver.c and
+owf_proof.c, so a source-level algebra change cannot reuse the v1 profile ID.
+
+3. Faithful selector projection
+
+Let b_0,...,b_(m-2) be extracted Boolean witness bits and let
+b_(m-1)=1+sum_(i<m-1)b_i. Then all b_i are Boolean and sum_i b_i=1.
+Let distinct labels ell_i be the polynomial-basis encodings of i+1 in F_q,
+and sigma=sum_i ell_i b_i. The patched unbatched equations are
+    (sigma+ell_i)b_i=0 for every i.
+There is at least one active bit, since the sum is one. If i and j are active,
+their equations imply sigma=ell_i=ell_j, so i=j. Therefore the selector is
+exactly one-hot. Conversely, a one-hot selector satisfies every equation.
+Applying this to both dimensions yields one branch index. Its gate is one
+and every other branch gate is zero. Satisfying that branch's AES constraints
+and the shared schedule/tag constraints projects the extracted witness to the
+ring relation (index,key). No distinct-key assumption is needed for this
+selector projection after the repair.
+
+4. Concrete structured-hash residual bound
+
+Let q=2^256. For a fixed nonzero vector v in F_q^t and fresh independent uniform
+a,b,alpha in F_q, let beta have any independent distribution. Define
+    H(v)=a P_v(alpha)+b R_v(beta),
+where P_v(X)=sum_(i=0)^(t-1) v_i X^(t-1-i), and R_v is the second hasher in
+the code. POLY_VEC_LEN=1 is statically required. By induction over the two-power
+Horner update in universal_hash.h, hasher_gfsecpar_final equals P_v(alpha).
+The second component need not itself be uniformly distributed in F_q.
+Because v is nonzero, P_v is a nonzero polynomial of degree at most t-1.
+Hence Pr[P_v(alpha)=0] <= (t-1)/q. Conditional on a nonzero P_v(alpha), for
+every fixed b and beta there is exactly one a making H(v)=0. Therefore
+    Pr[H(v)=0] <= (t-1)/q + 1/q = t/q.
+The bound is capped at one. The uniform coefficients must be sampled after v
+is fixed; this is the step supplied by the fresh batching-challenge query.
+
+For ordinary G, t=3688. Thus the concrete residual batching error is at most
+3688/2^256 per fresh batching challenge, conditioned on an already fixed
+extracted witness/correlation and the faithful circuit encoding.
+
+For repaired Q, let M be the number of residuals within one public-key branch
+and F the number of entries in the final aggregation. If selector or shared
+constraints are false, the final residual vector contains a fixed nonzero
+coefficient, independent of the outer hash key, so its erasure probability is
+at most F/q. Otherwise the selectors identify a unique branch. If the ring
+statement is false for the extracted key, that branch has a nonzero fixed
+residual vector. Its inner hash vanishes with probability at most M/q. When
+it does not vanish, the final vector is nonzero; independence of the outer
+slice then bounds its erasure by F/q. Therefore
+    eps_batch,Q <= (M+F)/q.
+There is no factor N: select the canonical branch from the already committed
+selector bits. For the AES-256 configuration,
+    M = 1792,
+    F = 104 + 1792 + N + 2 sqrt(N).
+This gives (M+F)=3768 at N=64 and 4776 at N=1024. These counts follow the
+patched final_constraints expressions; runtime metadata should verify them.
+
+The independent slices are important: conditioning on the inner slice leaves
+the outer tuple uniform. That conditional claim is false for the old reused
+tuple, as the explicit characteristic-two counterexample demonstrates.
+
+5. Degree-four final check and grinding
+
+Under a valid fixed VOLE correlation, each committed witness bit is represented
+by a degree-one polynomial. AES inverse constraints have degree two. Multiplying
+by two selector bits gives degree four; shifting a shared/selector degree-two
+constraint by X^2 aligns it to degree four. Three fresh masking blocks supply
+a polynomial of degree at most three. Thus, if the batched residual is nonzero,
+the verification difference is a nonzero polynomial in delta of degree at most
+four. It has at most four roots in F_q. This is an algebraic statement about
+the concrete polynomial representation; it does not assume a one-hot index
+without proving the equations in Section 3.
+
+For a fresh, unprogrammed final-challenge RO query, delta is uniform in F_q,
+so the probability of hitting such a root is at most 4/q. The actual signer
+searches a counter until the six high bits are zero and the compressed opening
+fits the threshold. Filtering can remove candidate roots, but cannot increase
+the number of roots per raw fresh query. Accordingly, with Q_5 raw final-stage
+queries, including unsuccessful counter attempts, the simple union bound is
+4 Q_5/q. Do not use 4/q after conditioning on the accepted grinding output.
+Likewise Q_4 fresh batching queries give at most Q_4(M+F)/q for the preceding
+residual event. These are components of the extraction error, not the full
+simulation-extractability bound: commitment/VOLE extraction, simulation
+programming, digest collisions and query-order events must also be accounted.
+
+6. Auditable small algebra check
+
+check_batching_algebra.py symbolically expands the old and repaired nested
+hashes as GF(2) multivariate polynomials. The old example has zero monomials;
+using independent inner/outer variables leaves 24 nonzero monomials. It also
+enumerates all 128 parity-completed length-eight selectors: the old aggregate
+accepts all 128, including 120 multi-hot vectors; the repaired separate equations
+accept exactly the eight one-hot vectors. Results are in
+batching_algebra_result.json. These checks establish the stated algebra examples
+and are not cryptographic benchmarks or demonstrations of an AES forgery.
+
+The finite selector check also exhausts all 32 one-hot and all 4,960
+three-hot length-32 vectors: the repaired equations accept every one-hot
+and reject every three-hot, while the old aggregate accepts all three-hot
+cases. check_selector_transcripts.c adds a low-level Q implementation test
+with identical public ring entries and an honest shared AES witness, then
+changes only selector bits. This construction isolates selector enforcement;
+its duplicate registry deliberately differs from CLARIS's strict application
+registry. Actual execution results are recorded separately by the package
+build/check pipeline.
+
+Execution confirmation (2026-10-02): The clean package build executed the
+selector transcript harness against Q v2 at both N=64 and N=1024. Each
+accepted the honest selector and rejected three-hot vectors in the first
+dimension, the second dimension, and both dimensions. The same diagnostic
+against Q v1 at N=64 accepted all four cases. Machine-readable results were
+recorded at /tmp/claris-v2-selector-transcripts.json and copied into package
+evidence by the reproduction agent. This validates the selector-language
+repair on those cases, not complete malicious-prover security.
+
+
+Later extraction supplement (same revision, 2026-10-02):
+The subsequent commitment_vole_extraction.txt supplies an explicit stage8/7/6
+extractor for the compressed commitment, a stage9/anchor normalization for the
+checked VOLE correlation, and a classical prefix-order/only-stage5-programming
+weak-extraction lemma with quantitative errors. Thus earlier statements that
+those particular extractors were still missing are historical audit status.
+The complete base conclusion also depends on the matched online simulator's
+structural and distribution proof; the parent manuscript integrates the final
+reviewed scope. No QROM conclusion follows from these classical log arguments.

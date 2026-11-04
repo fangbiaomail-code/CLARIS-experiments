@@ -1,0 +1,14 @@
+{
+  "leaves": 61440,
+  "trees": 22,
+  "denominator": "1809251394333065553493296640760748560207343510400633813116524750123642650624",
+  "expected_frontier_numerator": "420943529227452672821606301575237216403132767841007174106764616203295206557736",
+  "expected_frontier": 232.66171331741478,
+  "opening_pass_lower_bound": 0.0542206775714846,
+  "raw_pass_lower_bound": 0.0008471980870544468,
+  "formula": "Pr[K<=245] >= 1-E[K]/246; K=|ancestor_union|-43",
+  "method": "Exact counting of subtree leaf membership with integer arithmetic, followed by Markov's inequality; no Monte Carlo samples.",
+  "raw_probability_strictly_greater_than": "1/1181",
+  "trials": 1048576,
+  "tail_bound_strictly_below": "2^-1280"
+}

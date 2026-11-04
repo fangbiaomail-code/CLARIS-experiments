@@ -1,0 +1,225 @@
+{
+  "schema": "claris-run-environment-v2",
+  "started_at": "2026-11-04T17:06:38.102453+08:00",
+  "hostname": "fangdeMacBook-Air-2.local",
+  "platform": "macOS-15.3-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "cpu_brand": "Apple M1",
+  "physical_cores": "8",
+  "logical_cores": "8",
+  "memory_bytes": "8589934592",
+  "os_version": "15.3",
+  "os_build": "24D60",
+  "execution_arch": "x86_64 (AVX2/AES-NI/PCLMUL)",
+  "execution_note": "x86_64 binaries executed through Rosetta 2 translation on an Apple Silicon host; timings include translation overhead and are not native x86_64 hardware measurements.",
+  "compiler": "Apple clang version 16.0.0 (clang-1600.0.26.3)\nTarget: arm64-apple-darwin24.3.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "flags": [
+    "-arch",
+    "x86_64",
+    "-O2",
+    "-march=x86-64",
+    "-mavx2",
+    "-maes",
+    "-mpclmul",
+    "-DNDEBUG",
+    "-D_bswap64=__builtin_bswap64",
+    "-std=c11",
+    "-Wno-ignored-attributes",
+    "-Wno-unused-value",
+    "-Wno-incompatible-pointer-types-discards-qualifiers"
+  ],
+  "transcript_profile": "CLARIS-Q-v2-G-v1",
+  "build_manifest_sha256": "534301c2171bfbbea5fe3f62da6a95e5661b6064522894427cebc1a32193119e",
+  "source_inventory_sha256": "4a893a976f440c646d0cf8ffc42ebc97dcfad7f0e323f0662bb11044107ee7eb",
+  "harness_revision_sha256": "577ac8264f9060eef1d5cb935bf0c99f588b4c8cc871b84291bc1d2a5545af4b",
+  "repeats": 30,
+  "warmups": 3,
+  "benchmark_matrix": [
+    [
+      16,
+      1
+    ],
+    [
+      16,
+      2
+    ],
+    [
+      16,
+      2
+    ],
+    [
+      16,
+      3
+    ],
+    [
+      16,
+      3
+    ],
+    [
+      16,
+      5
+    ],
+    [
+      16,
+      5
+    ],
+    [
+      16,
+      10
+    ],
+    [
+      16,
+      10
+    ],
+    [
+      16,
+      20
+    ],
+    [
+      16,
+      20
+    ],
+    [
+      64,
+      1
+    ],
+    [
+      64,
+      2
+    ],
+    [
+      64,
+      2
+    ],
+    [
+      64,
+      3
+    ],
+    [
+      64,
+      3
+    ],
+    [
+      64,
+      5
+    ],
+    [
+      64,
+      5
+    ],
+    [
+      64,
+      10
+    ],
+    [
+      64,
+      10
+    ],
+    [
+      64,
+      20
+    ],
+    [
+      64,
+      20
+    ],
+    [
+      256,
+      1
+    ],
+    [
+      256,
+      2
+    ],
+    [
+      256,
+      2
+    ],
+    [
+      256,
+      3
+    ],
+    [
+      256,
+      3
+    ],
+    [
+      256,
+      5
+    ],
+    [
+      256,
+      5
+    ],
+    [
+      256,
+      10
+    ],
+    [
+      256,
+      10
+    ],
+    [
+      256,
+      20
+    ],
+    [
+      256,
+      20
+    ],
+    [
+      1024,
+      1
+    ],
+    [
+      1024,
+      2
+    ],
+    [
+      1024,
+      2
+    ],
+    [
+      1024,
+      3
+    ],
+    [
+      1024,
+      3
+    ],
+    [
+      1024,
+      5
+    ],
+    [
+      1024,
+      5
+    ],
+    [
+      1024,
+      10
+    ],
+    [
+      1024,
+      10
+    ],
+    [
+      1024,
+      20
+    ],
+    [
+      1024,
+      20
+    ]
+  ],
+  "network_used": false,
+  "binaries": {
+    "ordinary": "310022d66bc3688cf1a6656a07ec081fe758f04d7df8717e0104612883d834d5",
+    "ring_n16": "da02479d0d0f2a83583a6bcc8dc64149d579b8606d0485820ada9b00136af964",
+    "ring_n64": "56c43975069e3c1805e626304ab831f49ea646c2c92d24e8a276501550c73d7c",
+    "ring_n256": "626dffc054690ceaf39263ecd0d964740dc048e5ee814ef77c7893255948253c",
+    "ring_n1024": "3d81f32b68b908ceec94f71035fa11b23a8fc0d4b48692c07628238a0ffc9d0f"
+  },
+  "run_directory": "/Users/fang/Downloads/1102\u8dd1\u5b9e\u9a8c/claris-fullmatrix/results/fullmatrix_final",
+  "completed_at": "2026-11-04T19:52:00.686920+08:00"
+}
