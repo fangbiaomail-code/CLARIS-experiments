@@ -17,6 +17,8 @@ To evaluate the cost of the underlying cryptographic operations, AES-256 key exp
 | VOLE sender | 12,791.0000 | 13,314.5880 | 2,385.8586 | 14,967.5300 |
 | VOLE receiver | 12,733.4000 | 12,816.1160 | 469.8041 | 13,830.0200 |
 
+![Fig. 1. Execution time of cryptographic primitive operations](figures/chapter_vii/primitive_operations.png)
+
 As shown in Table I, VOLE sender and receiver operations require more time than the other primitive operations. The operation-count analysis further shows that one ordinary proof invokes the VOLE sender 22 times during generation and the VOLE receiver 22 times during verification. These measurements are used below to analyze the computational cost of the proof procedures.
 
 ## A. Communication Overhead Comparison
@@ -88,11 +90,11 @@ The complete evidence package contains the association certificate, the selected
 
 When \(s=20\), the Anchor evidence package occupies 1,955,340 B, whereas the Common Bridge package occupies 2,004,612 B. The difference is 49,272 B, consisting of one ordinary proof (49,208 B) and the 64 B Bridge tuple. The same difference is maintained for all evaluated values of \(s\).
 
-Fig. 1 shows the proof size as the number of selected reports increases, and Fig. 2 presents the corresponding complete evidence package sizes.
+Fig. 2 shows the proof size as the number of selected reports increases, and Fig. 3 presents the corresponding complete evidence package sizes.
 
-![Fig. 1. Link proof size under different numbers of selected reports](figures/chapter_vii/proof_size_vs_s.png)
+![Fig. 2. Link proof size under different numbers of selected reports](figures/chapter_vii/proof_size_vs_s.png)
 
-![Fig. 2. Complete evidence package size under different numbers of selected reports](figures/chapter_vii/evidence_package_vs_s.png)
+![Fig. 3. Complete evidence package size under different numbers of selected reports](figures/chapter_vii/evidence_package_vs_s.png)
 
 ## B. Computational Overhead Comparison
 
@@ -111,11 +113,11 @@ Table V presents the generation and verification times of anonymous reports unde
 | 256 | 450.91 | 11.70 | 486.79 | 33.72 |
 | 1024 | 896.12 | 19.92 | 834.28 | 23.64 |
 
-As the ring size increases from 16 to 1024, the report generation time increases from 293.80 ms to 896.12 ms, and the verification time increases from 358.02 ms to 834.28 ms. Fig. 3 and Fig. 4 illustrate the changes in generation and verification time, respectively.
+As the ring size increases from 16 to 1024, the report generation time increases from 293.80 ms to 896.12 ms, and the verification time increases from 358.02 ms to 834.28 ms. Fig. 4 and Fig. 5 illustrate the changes in generation and verification time, respectively.
 
-![Fig. 3. Anonymous report generation time under different ring sizes](figures/chapter_vii/report_generation_vs_N.png)
+![Fig. 4. Anonymous report generation time under different ring sizes](figures/chapter_vii/report_generation_vs_N.png)
 
-![Fig. 4. Anonymous report verification time under different ring sizes](figures/chapter_vii/report_verification_vs_N.png)
+![Fig. 5. Anonymous report verification time under different ring sizes](figures/chapter_vii/report_verification_vs_N.png)
 
 ### 2) Claim Generation and Verification
 
@@ -132,9 +134,9 @@ The Claim operation generates one ordinary proof. Table VI presents the Claim ge
 
 The Claim generation time ranges from 278.57 ms to 292.40 ms, while the core verification time ranges from 351.58 ms to 366.91 ms. Both remain nearly constant as the ring size increases. This is because the Claim relation checks the correspondence between the report tag and the designated public key, without repeating the ring-member selection relation.
 
-The verifier also checks the original report referenced by the Claim. Therefore, the original report verification time is listed separately from the Claim core verification time. Fig. 5 presents the Claim generation and core verification times.
+The verifier also checks the original report referenced by the Claim. Therefore, the original report verification time is listed separately from the Claim core verification time. Fig. 6 presents the Claim generation and core verification times.
 
-![Fig. 5. Claim proof generation and verification times](figures/chapter_vii/claim_generation_verification.png)
+![Fig. 6. Claim proof generation and verification times](figures/chapter_vii/claim_generation_verification.png)
 
 ### 3) Link Generation and Verification
 
@@ -169,11 +171,13 @@ T_{\mathrm{Anchor}}(s)\approx(s-1)T_G,
 T_{\mathrm{Bridge}}(s)\approx sT_G,
 \]
 
-where \(T_G\) denotes the generation or verification time of one ordinary proof. Figs. 6 and 7 show the generation and verification times under different values of \(s\).
+where \(T_G\) denotes the generation or verification time of one ordinary proof. Figs. 7 and 8 show the generation and verification times under different values of \(s\). Fig. 9 compares the two linking structures directly.
 
-![Fig. 6. Link proof generation time under different numbers of selected reports](figures/chapter_vii/link_generation_vs_s.png)
+![Fig. 7. Link proof generation time under different numbers of selected reports](figures/chapter_vii/link_generation_vs_s.png)
 
-![Fig. 7. Link proof verification time under different numbers of selected reports](figures/chapter_vii/link_verification_vs_s.png)
+![Fig. 8. Link proof verification time under different numbers of selected reports](figures/chapter_vii/link_verification_vs_s.png)
+
+![Fig. 9. Anchor and Common Bridge comparison](figures/chapter_vii/anchor_vs_bridge.png)
 
 ### 4) Cost Calculation from Primitive Operations
 
@@ -220,9 +224,9 @@ These values represent the VOLE component of one proof. The remaining computatio
 
 ### 5) Memory Overhead
 
-The peak resident set size (RSS) was recorded during report generation, proof generation, and independent public verification. The proof-generation worker used 71.7–95.7 MiB of peak memory, while the report-generation driver used 71.8–87.5 MiB. Fig. 8 presents the peak memory consumption under different numbers of selected reports.
+The peak resident set size (RSS) was recorded during report generation, proof generation, and independent public verification. The proof-generation worker used 71.7–95.7 MiB of peak memory, while the report-generation driver used 71.8–87.5 MiB. Fig. 10 presents the peak memory consumption under different numbers of selected reports.
 
-![Fig. 8. Peak memory consumption under different numbers of selected reports](figures/chapter_vii/peak_rss_vs_s.png)
+![Fig. 10. Peak memory consumption under different numbers of selected reports](figures/chapter_vii/peak_rss_vs_s.png)
 
 The functional tests were also conducted for all four ring sizes. The test suite passed 53 joint checks, 23 public-verification checks, and 22 identity-free linking checks, covering valid and invalid claims, same-owner and different-owner report sets, and tampering with report contents, identifiers, and contexts.
 
